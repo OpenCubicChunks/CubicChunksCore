@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- suppress for time measurement code -->
+    <suppress checks="InnerAssignment" files="Int3HashSet.java"/>
+    <!-- TODO: These probably need refactoring -->
+    <suppress checks="CyclomaticComplexity" files="SurfaceTrackerNodesTest.java"/>
+    <suppress checks="HiddenField" files="Int3HashSet.java"/>
+    <suppress checks="NoFinalizer" files="Int3HashSet.java"/>
+    <suppress checks="EmptyForIteratorPad" files="Int3HashSet.java|Int3HashSetTest.java"/>
+    <suppress checks="ModifiedControlVariable" files="Int3HashSetTest.java"/>
+</suppressions>

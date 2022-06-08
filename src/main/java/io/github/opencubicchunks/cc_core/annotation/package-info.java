@@ -1,0 +1,5 @@
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+package io.github.opencubicchunks.cc_core.annotation;
+
+import javax.annotation.ParametersAreNonnullByDefault;

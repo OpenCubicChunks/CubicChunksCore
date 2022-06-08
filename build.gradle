@@ -1,0 +1,93 @@
+import io.github.opencubicchunks.gradle.GeneratePackageInfo
+
+plugins {
+    id 'checkstyle'
+}
+
+apply plugin: "java"
+
+test {
+    useJUnitPlatform()
+
+    // Always run tests, even when nothing changed.
+    dependsOn 'cleanTest'
+
+    // Show test results.
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+task generatePackageInfo {
+    setGroup('filegen')
+    doFirst {
+        GeneratePackageInfo.generateFiles(sourceSets.main)
+    }
+}
+
+task genAll {
+    setGroup('filegen')
+    dependsOn(generatePackageInfo)
+}
+
+group = "io.github.opencubicchunks" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+
+configurations {
+    debugCompile
+    debugRuntime {
+        extendsFrom(debugCompile)
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+    maven {
+        url 'https://repo.spongepowered.org/maven/'
+    }
+    jcenter()
+    maven {
+        name = "ParchmentMC"
+        url = "https://maven.parchmentmc.net/"
+    }
+    maven {
+        name = "JitPack"
+        url = "https://jitpack.io"
+    }
+    maven {
+        name = "Gegy"
+        url = "https://maven.gegy.dev"
+    }
+}
+
+dependencies {
+    implementation group: 'com.google.guava', name: 'guava', version: '21.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
+    implementation group: 'io.netty', name: 'netty-all', version: '4.1.77.Final'
+    implementation group: 'it.unimi.dsi', name: 'fastutil', version: '8.2.3'
+
+    implementation 'com.google.code.findbugs:jsr305:3.0.1'
+    testCompileOnly('com.google.code.findbugs:jsr305:3.0.1')
+
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.8.2')
+    testImplementation('org.junit.jupiter:junit-jupiter-params:5.8.2')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.8.2')
+
+    testImplementation('org.hamcrest:hamcrest-junit:2.0.0.0')
+
+    //TODO: shadow these?
+    /*include*/ implementation('io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT')
+
+    /*include*/ implementation('com.electronwill.night-config:core:3.6.0')
+    /*include*/ implementation('com.electronwill.night-config:toml:3.6.0')
+}
+
+// ensure that the encoding is set to UTF-8, no matter what the system default is
+// this fixes some edge cases with special characters not displaying correctly
+// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
