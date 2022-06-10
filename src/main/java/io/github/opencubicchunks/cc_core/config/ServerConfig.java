@@ -44,7 +44,7 @@ public class ServerConfig extends BaseConfig {
         return overrides.getOrDefault(dimensionResourceLocation, defaultWorldStyle);
     }
 
-    private static CommentedConfig createDefaultConfig() {
+    private static CommentedConfig createDefaultConfig(List<String> cubicDimensions, List<String> hybridDimensions, List<String> chunkDimensions) {
         // TODO some way of setting different defaults for specific modids? e.g. for things like RFTools and Mystcraft - maybe things like "mystcraft:*"
         Config.setInsertionOrderPreserved(true);
         var config = CommentedConfig.inMemory();
@@ -56,9 +56,9 @@ public class ServerConfig extends BaseConfig {
      "HYBRID" - the dimension has cubic chunks enabled, but uses vanilla world generation. This may improve mod compatibility in some cases.
      "VANILLA" - the dimension does NOT use cubic chunks; it behaves the same as in vanilla, with limited height, etc.\
 """);
-        config.set(KEY_CUBIC_DIMENSIONS, getCubicDimensions());
-        config.set(KEY_HYBRID_DIMENSIONS, getHybridDimensions());
-        config.set(KEY_CHUNK_DIMENSIONS, getChunkDimensions());
+        config.set(KEY_CUBIC_DIMENSIONS, cubicDimensions);
+        config.set(KEY_HYBRID_DIMENSIONS, hybridDimensions);
+        config.set(KEY_CHUNK_DIMENSIONS, chunkDimensions);
         config.setComment(KEY_CUBIC_DIMENSIONS, """
  Explicitly sets the world style for each dimension. Overrides the default in defaultWorldStyle.
  Note that this only affects dimensions that have not yet been generated.
@@ -73,17 +73,17 @@ public class ServerConfig extends BaseConfig {
         return new File(worldFolder.toFile(), FILE_PATH);
     }
 
-    private static void createConfig(Path worldFolder) {
+    private static void createConfig(Path worldFolder, List<String> cubicDimensions, List<String> hybridDimensions, List<String> chunkDimensions) {
         File configPath = getConfigPath(worldFolder);
         if (configPath.exists()) return;
         configPath.getParentFile().mkdirs();
-        write(configPath, createDefaultConfig());
+        write(configPath, createDefaultConfig(cubicDimensions, hybridDimensions, chunkDimensions));
     }
 
-    @Nullable public static ServerConfig getConfig(Path worldFolder) {
+    @Nullable public static ServerConfig getConfig(Path worldFolder, List<String> cubicDimensions, List<String> hybridDimensions, List<String> chunkDimensions) {
         File configPath = getConfigPath(worldFolder);
         if (configPath.exists()) {
-            var config = createDefaultConfig();
+            var config = createDefaultConfig(cubicDimensions, hybridDimensions, chunkDimensions);
             read(configPath, config);
             var serverConfig = new ServerConfig(config);
             // Write the config again in case any keys were missing or invalid
@@ -93,24 +93,12 @@ public class ServerConfig extends BaseConfig {
         return null;
     }
 
-    public static void generateConfigIfNecessary(Path worldFolder) {
+    public static void generateConfigIfNecessary(Path worldFolder, List<String> cubicDimensions, List<String> hybridDimensions, List<String> chunkDimensions) {
         if (CubicChunks.config().shouldGenerateNewWorldsAsCC()) {
             CubicChunks.LOGGER.info("New worlds are configured to generate as CC; creating CC config file");
-            ServerConfig.createConfig(worldFolder);
+            ServerConfig.createConfig(worldFolder, cubicDimensions, hybridDimensions, chunkDimensions);
         } else {
             CubicChunks.LOGGER.info("New worlds are configured to NOT generate as CC; no Cubic Chunks data will be created");
         }
-    }
-
-    private static List<String> getCubicDimensions() {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
-
-    private static List<String> getHybridDimensions() {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
-
-    private static List<String> getChunkDimensions() {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
     }
 }
