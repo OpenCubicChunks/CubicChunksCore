@@ -2,9 +2,9 @@ package io.github.opencubicchunks.cc_core.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.minecraft.MCChunkPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
-import io.github.opencubicchunks.cc_core.api.CubePos;
 import org.junit.jupiter.api.Test;
 
 public class CubePosTest {

@@ -3,18 +3,14 @@ package io.github.opencubicchunks.cc_core.world;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.opencubicchunks.cc_core.CubicChunks;
-import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
-import io.github.opencubicchunks.cc_core.annotation.MethodsReturnNonnullByDefault;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockGetter;
+import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockState;
 import io.github.opencubicchunks.cc_core.minecraft.MCLevelHeightAccessor;
 import io.github.opencubicchunks.cc_core.utils.MathUtil;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public final class SpawnPlaceFinder {
 
     private static final int MIN_FREE_SPACE_SPAWN = 32;

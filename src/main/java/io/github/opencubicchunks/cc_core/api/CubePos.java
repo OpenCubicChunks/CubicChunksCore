@@ -33,14 +33,6 @@ public class CubePos implements MCVec3i {
         return new CubePos(x, y, z);
     }
 
-    public static long asLong(int x, int y, int z) {
-        long i = 0L;
-        i |= ((long) x & (1 << 21) - 1) << 43;
-        i |= ((long) y & (1 << 22) - 1);
-        i |= ((long) z & (1 << 21) - 1) << 22;
-        return i;
-    }
-
     @Override public int getX() {
         return x;
     }
@@ -58,6 +50,14 @@ public class CubePos implements MCVec3i {
         i |= ((long) this.getX() & (1 << 21) - 1) << 43;
         i |= ((long) this.getY() & (1 << 22) - 1);
         i |= ((long) this.getZ() & (1 << 21) - 1) << 22;
+        return i;
+    }
+
+    public static long asLong(int x, int y, int z) {
+        long i = 0L;
+        i |= ((long) x & (1 << 21) - 1) << 43;
+        i |= ((long) y & (1 << 22) - 1);
+        i |= ((long) z & (1 << 21) - 1) << 22;
         return i;
     }
 

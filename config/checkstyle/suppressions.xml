@@ -9,6 +9,7 @@
     <suppress checks="InnerAssignment" files="Int3HashSet.java"/>
     <!-- TODO: These probably need refactoring -->
     <suppress checks="CyclomaticComplexity" files="SurfaceTrackerNodesTest.java"/>
+    <suppress checks="DeclarationOrder" files="MixinNaturalSpawner.java|Int3HashSet.java"/>
     <suppress checks="HiddenField" files="Int3HashSet.java"/>
     <suppress checks="NoFinalizer" files="Int3HashSet.java"/>
     <suppress checks="EmptyForIteratorPad" files="Int3HashSet.java|Int3HashSetTest.java"/>

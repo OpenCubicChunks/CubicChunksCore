@@ -24,13 +24,8 @@
  */
 package io.github.opencubicchunks.cc_core.utils;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
-import io.github.opencubicchunks.cc_core.annotation.MethodsReturnNonnullByDefault;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class AddressTools {
 
     public static int getLocalAddress(int localX, int localY, int localZ) {

@@ -25,11 +25,11 @@
 
 package io.github.opencubicchunks.cc_core.utils;
 
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCChunkPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
-import io.github.opencubicchunks.cc_core.api.CubePos;
 
 /**
  * A class that contains helper-methods for many CubicChunks related things.
