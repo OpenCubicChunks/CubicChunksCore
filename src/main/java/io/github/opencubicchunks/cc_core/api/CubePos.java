@@ -222,4 +222,19 @@ public class CubePos implements MCVec3i {
         return getX() >= minX && getY() >= minY && getZ() >= minZ
             && getX() <= maxX && getY() <= maxY && getZ() <= maxZ;
     }
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("x", this.getX()).add("y", this.getY()).add("z", this.getZ()).toString();
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CubePos cubePos = (CubePos) o;
+        return x == cubePos.x && y == cubePos.y && z == cubePos.z;
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(x, y, z);
+    }
 }
