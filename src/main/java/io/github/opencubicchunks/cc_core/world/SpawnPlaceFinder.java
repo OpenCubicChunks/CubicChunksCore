@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import io.github.opencubicchunks.cc_core.CubicChunks;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockGetter;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
-import io.github.opencubicchunks.cc_core.minecraft.MCBlockState;
 import io.github.opencubicchunks.cc_core.minecraft.MCLevelHeightAccessor;
 import io.github.opencubicchunks.cc_core.utils.MathUtil;
 
@@ -20,9 +19,10 @@ public final class SpawnPlaceFinder {
     }
 
     @Nullable
-    public static MCBlockPos getTopBlockBisect(MCBlockGetter level, MCBlockPos pos, boolean checkValid, Predicate<MCBlockState> isValidSpawnBlock, Predicate<MCBlockState> isEmptyCollision) {
+    public static MCBlockPos getTopBlockBisect(MCBlockGetter level, MCBlockPos pos, boolean checkValid, Predicate<MCBlockPos> isValidSpawnBlock,
+                                               Predicate<MCBlockPos> isEmptyCollision) {
         MCBlockPos minPos, maxPos;
-        if (findNonEmpty(level, pos, isEmptyCollision) == null) {
+        if (findNonEmpty(pos, isEmptyCollision) == null) {
             CubicChunks.LOGGER.debug("Starting bisect with empty space at init {}", pos);
             maxPos = pos;
             minPos = findMinPos(level, pos, isEmptyCollision);
@@ -36,19 +36,19 @@ public final class SpawnPlaceFinder {
             CubicChunks.LOGGER.error("No suitable spawn found, using original input {} (min={}, max={})", pos, minPos, maxPos);
             return null;
         }
-        assert findNonEmpty(level, maxPos, isEmptyCollision) == null && findNonEmpty(level, minPos, isEmptyCollision) != null;
-        MCBlockPos groundPos = bisect(level, minPos.below(MIN_FREE_SPACE_SPAWN), maxPos.above(MIN_FREE_SPACE_SPAWN), isEmptyCollision);
-        if (checkValid && !isValidSpawnBlock.test(level.getBlockState(groundPos))) {
+        assert findNonEmpty(maxPos, isEmptyCollision) == null && findNonEmpty(minPos, isEmptyCollision) != null;
+        MCBlockPos groundPos = bisect(minPos.below(MIN_FREE_SPACE_SPAWN), maxPos.above(MIN_FREE_SPACE_SPAWN), isEmptyCollision);
+        if (checkValid && !isValidSpawnBlock.test(groundPos)) {
             return null;
         }
         return groundPos.above();
     }
 
-    private static MCBlockPos bisect(MCBlockGetter level, MCBlockPos min, MCBlockPos max, Predicate<MCBlockState> isEmptyCollision) {
+    private static MCBlockPos bisect(MCBlockPos min, MCBlockPos max, Predicate<MCBlockPos> isEmptyCollision) {
         while (min.getY() < max.getY() - 1) {
             CubicChunks.LOGGER.debug("Bisect step with min={}, max={}", min, max);
             MCBlockPos middle = middleY(min, max);
-            if (findNonEmpty(level, middle, isEmptyCollision) != null) {
+            if (findNonEmpty(middle, isEmptyCollision) != null) {
                 // middle has solid space, so it can be used as new minimum
                 min = middle;
             } else {
@@ -65,10 +65,10 @@ public final class SpawnPlaceFinder {
     }
 
     @Nullable
-    private static MCBlockPos findMinPos(MCBlockGetter level, MCBlockPos pos, Predicate<MCBlockState> isEmptyCollision) {
+    private static MCBlockPos findMinPos(MCBlockGetter level, MCBlockPos pos, Predicate<MCBlockPos> isEmptyCollision) {
         // go down twice as much each time until we hit filled space
         double dy = 16;
-        while (findNonEmpty(level, inWorldUp(level, pos, -dy), isEmptyCollision) == null) {
+        while (findNonEmpty(inWorldUp(level, pos, -dy), isEmptyCollision) == null) {
             if (dy > Integer.MAX_VALUE) {
                 CubicChunks.LOGGER.debug("Error finding spawn point: can't find solid start height at {}", pos);
                 return null;
@@ -79,10 +79,10 @@ public final class SpawnPlaceFinder {
     }
 
     @Nullable
-    private static MCBlockPos findMaxPos(MCBlockGetter level, MCBlockPos pos, Predicate<MCBlockState> isEmptyCollision) {
+    private static MCBlockPos findMaxPos(MCBlockGetter level, MCBlockPos pos, Predicate<MCBlockPos> isEmptyCollision) {
         // go up twice as much each time until we hit empty space
         double dy = 16;
-        while (findNonEmpty(level, inWorldUp(level, pos, dy), isEmptyCollision) != null) {
+        while (findNonEmpty(inWorldUp(level, pos, dy), isEmptyCollision) != null) {
             if (dy > Integer.MAX_VALUE) {
                 CubicChunks.LOGGER.debug("Error finding spawn point: can't find non-solid end height at {}", pos);
                 return null;
@@ -93,9 +93,9 @@ public final class SpawnPlaceFinder {
     }
 
     @Nullable
-    private static MCBlockPos findNonEmpty(MCBlockGetter level, MCBlockPos pos, Predicate<MCBlockState> isEmptyCollision) {
+    private static MCBlockPos findNonEmpty(MCBlockPos pos, Predicate<MCBlockPos> isEmptyCollision) {
         for (int i = 0; i < MIN_FREE_SPACE_SPAWN; i++, pos = pos.above()) {
-            if (!isEmptyCollision.test(level.getBlockState(pos))) {
+            if (!isEmptyCollision.test(pos)) {
                 return pos;
             }
         }
