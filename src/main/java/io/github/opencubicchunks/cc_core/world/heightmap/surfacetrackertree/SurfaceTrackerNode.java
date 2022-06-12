@@ -140,7 +140,7 @@ public abstract class SurfaceTrackerNode {
     }
 
     /** Sets the index in this and all parent SurfaceTrackerSections to dirty */
-    protected void markDirty(int x, int z) {
+    public void markDirty(int x, int z) {
         setDirty(index(x, z));
         if (parent != null) {
             parent.markDirty(x, z);

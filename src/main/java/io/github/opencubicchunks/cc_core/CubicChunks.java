@@ -21,7 +21,7 @@ public class CubicChunks {
 
     public static final String PROTOCOL_VERSION = "0";
 
-    private static final CommonConfig CONFIG = CommonConfig.getConfig();
+    protected static final CommonConfig CONFIG = CommonConfig.getConfig();
 
     public CubicChunks() {
         EarlyConfig.getDiameterInSections();
