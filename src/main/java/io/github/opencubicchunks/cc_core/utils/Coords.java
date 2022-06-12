@@ -29,6 +29,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCChunkPos;
+import io.github.opencubicchunks.cc_core.minecraft.MCEntity;
 import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
 
 /**
@@ -338,5 +339,33 @@ public class Coords {
 
     public static MCBlockPos sectionPosToMinBlockPos(MCSectionPos sectionPos) {
         return MCBlockPos.of(sectionToMinBlock(sectionPos.getX()), sectionToMinBlock(sectionPos.getY()), sectionToMinBlock(sectionPos.getZ()));
+    }
+
+    /**
+     * @param entity An entity
+     *
+     * @return The {@link CubePos} x of the entity
+     */
+    public static int getCubeXForEntity(MCEntity entity) {
+        return blockToCube(Math.floor(entity.getX()));
+    }
+
+    /**
+     * @param entity An entity
+     *
+     * @return The {@link CubePos} y of the entity
+     */
+    public static int getCubeYForEntity(MCEntity entity) {
+        // the entity is in the cube it's inside, not the cube it's standing on
+        return blockToCube(Math.floor(entity.getY()));
+    }
+
+    /**
+     * @param entity An entity
+     *
+     * @return The {@link CubePos} z of the entity
+     */
+    public static int getCubeZForEntity(MCEntity entity) {
+        return blockToCube(Math.floor(entity.getZ()));
     }
 }

@@ -2,10 +2,13 @@ package io.github.opencubicchunks.cc_core.api;
 
 import static io.github.opencubicchunks.cc_core.utils.Coords.*;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.google.common.base.MoreObjects;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCChunkPos;
+import io.github.opencubicchunks.cc_core.minecraft.MCEntity;
 import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCVec3i;
 import io.github.opencubicchunks.cc_core.utils.Coords;
@@ -107,6 +110,12 @@ public class CubePos implements MCVec3i {
             Coords.sectionToCube(sectionPos.getX()),
             Coords.sectionToCube(sectionPos.getY()),
             Coords.sectionToCube(sectionPos.getZ()));
+    }
+
+    public static CubePos from(MCEntity entity) {
+        return new CubePos(blockToCube(Math.floor(entity.getX())),
+            blockToCube(Math.floor(entity.getY())),
+            blockToCube(Math.floor(entity.getZ())));
     }
 
     public static CubePos from(double x, double y, double z) {
