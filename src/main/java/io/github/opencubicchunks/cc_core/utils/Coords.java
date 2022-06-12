@@ -81,6 +81,21 @@ public class Coords {
         return val & (CubicConstants.DIAMETER_IN_BLOCKS - 1);
     }
 
+    /** See {@link Coords#blockToLocal} */
+    public static int localX(MCBlockPos pos) {
+        return blockToLocal(pos.getX());
+    }
+
+    /** See {@link Coords#blockToLocal} */
+    public static int localY(MCBlockPos pos) {
+        return blockToLocal(pos.getY());
+    }
+
+    /** See {@link Coords#blockToLocal} */
+    public static int localZ(MCBlockPos pos) {
+        return blockToLocal(pos.getZ());
+    }
+
     /**
      * @param val A single dimension of the BlockPos (eg: BlockPos#getY())
      *
@@ -205,6 +220,10 @@ public class Coords {
         //1011101010001, 1010101011100, 1101011101010
         final int mask = POS_TO_INDEX_MASK;
         return (blockXVal & mask) >> 4 | (blockYVal & mask) >> 1 | (blockZVal & mask) << 2;
+    }
+
+    public static int blockToIndex(MCBlockPos pos) {
+        return blockToIndex(pos.getX(), pos.getY(), pos.getZ());
     }
 
     /**
