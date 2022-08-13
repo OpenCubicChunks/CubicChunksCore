@@ -1,11 +1,11 @@
 package io.github.opencubicchunks.cc_core.levelgen.heightmap;
 
-import static io.github.opencubicchunks.cc_core.testutils.Utils.shouldFail;
-import static io.github.opencubicchunks.cc_core.testutils.Utils.shouldSucceed;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.opencubicchunks.cc_core.levelgen.heightmap.SurfaceTrackerNodesTest.NullHeightmapStorage;
-import io.github.opencubicchunks.cc_core.levelgen.heightmap.SurfaceTrackerNodesTest.TestHeightmapNode;
+import io.github.opencubicchunks.cc_core.levelgen.heightmap.SurfaceTrackerNodesTest.TestHeightmapSource32;
 import io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerBranch;
 import io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerLeaf;
 import io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerNode;
@@ -18,14 +18,12 @@ public class SurfaceTrackerBranchTest {
      */
     @Test
     public void testValidScaleBounds() {
-        shouldFail(() -> new SurfaceTrackerBranch(0, 0, null, (byte) 0),
-            "SurfaceTrackerBranch didn't throw when given scale 0");
-        shouldFail(() -> new SurfaceTrackerBranch(SurfaceTrackerNode.MAX_SCALE + 1, 0, null, (byte) 0),
-            "SurfaceTrackerBranch didn't throw when given scale MAX_SCALE + 1");
+        assertThrows(SurfaceTrackerBranch.InvalidScaleException.class, () -> new SurfaceTrackerBranch(0, 0, null, (byte) 0));
+        assertThrows(SurfaceTrackerBranch.InvalidScaleException.class, () -> new SurfaceTrackerBranch(SurfaceTrackerNode.MAX_SCALE + 1, 0, null, (byte) 0));
 
         for (int i = 1; i <= SurfaceTrackerNode.MAX_SCALE; i++) {
             int finalI = i;
-            shouldSucceed(() -> new SurfaceTrackerBranch(finalI, 0, null, (byte) 0),
+            assertDoesNotThrow(() -> new SurfaceTrackerBranch(finalI, 0, null, (byte) 0),
                 String.format("SurfaceTrackerBranch threw when given scale %d", i));
         }
     }
@@ -37,10 +35,10 @@ public class SurfaceTrackerBranchTest {
     public void testLeafInsertionIntoRoot() {
         NullHeightmapStorage storage = new NullHeightmapStorage();
         SurfaceTrackerBranch root = new SurfaceTrackerBranch(SurfaceTrackerNode.MAX_SCALE, 0, null, (byte) 0);
-        root.loadCube(0, 0, storage, new TestHeightmapNode(0));
+        root.loadSource(0, 0, storage, new TestHeightmapSource32(0, 0, 0));
 
-        SurfaceTrackerLeaf leaf = root.getMinScaleNode(0);
+        SurfaceTrackerLeaf leaf = root.getLeaf(0);
         assertNotNull(leaf, "Appropriate leaf was null after loading node into root");
-        assertNotNull(leaf.getNode(), "Leaf had null node after node was loaded into root");
+        assertNotNull(leaf.getSource(), "Leaf had null node after node was loaded into root");
     }
 }

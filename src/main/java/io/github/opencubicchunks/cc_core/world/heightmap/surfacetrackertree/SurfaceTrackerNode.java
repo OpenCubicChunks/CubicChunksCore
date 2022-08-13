@@ -6,11 +6,11 @@ import com.google.common.annotations.VisibleForTesting;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.minecraft.MCBitStorage;
 import io.github.opencubicchunks.cc_core.utils.MathUtil;
-import io.github.opencubicchunks.cc_core.world.heightmap.HeightmapNode;
+import io.github.opencubicchunks.cc_core.world.heightmap.HeightmapSource;
 import io.github.opencubicchunks.cc_core.world.heightmap.HeightmapStorage;
 
 public abstract class SurfaceTrackerNode {
-    // TODO: This currently covers y = -2^28 to 2^28 or so. One more would allow us to cover the entire integer block range
+    // This currently covers y = -2^28 to 2^28 or so. One more would allow us to cover the entire integer block range
     public static final int MAX_SCALE = 6;
     /**
      * Number of bits needed to represent the children nodes (i.e. log2(NODE_COUNT)) This is also the number of bits that are added on each scale increase.
@@ -18,6 +18,10 @@ public abstract class SurfaceTrackerNode {
     public static final int NODE_COUNT_BITS = 4;
     /** Number of children nodes */
     public static final int NODE_COUNT = 1 << NODE_COUNT_BITS;
+    /** Number of bits needed to represent the children of the root node*/
+    public static final int ROOT_NODE_COUNT_BITS = 1;
+    /** Number of children of the root node */
+    public static final int ROOT_NODE_COUNT = 1 << ROOT_NODE_COUNT_BITS;
 
     // Use width of 16 to match columns.
     public static final int WIDTH_BLOCKS = 16;
@@ -36,17 +40,34 @@ public abstract class SurfaceTrackerNode {
      */
     protected final int scaledY;
     protected final byte scale;
-    protected final byte heightmapType;
+    /**
+     * Most significant bit (sign bit) is requires save flag
+     * Other bits are the heightmap type
+     */
+    protected byte heightmapTypeAndRequiresSave = 0;
 
     public SurfaceTrackerNode(int scale, int scaledY, @Nullable SurfaceTrackerBranch parent, byte heightmapType) {
-//      super((ChunkAccess) node, types);
         // +1 in bit size to make room for null values
-        this.heights = MCBitStorage.create(BASE_SIZE_BITS + 1 + scale * NODE_COUNT_BITS, WIDTH_BLOCKS * WIDTH_BLOCKS);
+        this.heights = MCBitStorage.create(getBitsForScale(scale), WIDTH_BLOCKS * WIDTH_BLOCKS);
         this.dirtyPositions = new long[WIDTH_BLOCKS * WIDTH_BLOCKS / Long.SIZE];
         this.parent = parent;
         this.scaledY = scaledY;
         this.scale = (byte) scale;
-        this.heightmapType = heightmapType;
+        setHeightmapType(heightmapType);
+        setRequiresSave(); // A clear node created always requires saving
+    }
+
+    /**
+     * Should be used when loading from save
+     */
+    public SurfaceTrackerNode(int scale, int scaledY, @Nullable SurfaceTrackerBranch parent, byte heightmapType, long[] heightsRaw) {
+        // +1 in bit size to make room for null values
+        this.heights = MCBitStorage.create(getBitsForScale(scale), WIDTH_BLOCKS * WIDTH_BLOCKS, heightsRaw);
+        this.dirtyPositions = new long[WIDTH_BLOCKS * WIDTH_BLOCKS / Long.SIZE];
+        this.parent = parent;
+        this.scaledY = scaledY;
+        this.scale = (byte) scale;
+        setHeightmapType(heightmapType);
     }
 
     /**
@@ -58,8 +79,26 @@ public abstract class SurfaceTrackerNode {
         if (isDirty(idx)) {
             return updateHeight(x, z, idx);
         }
-        int relativeY = this.heights.get(idx);
-        return relToAbsY(relativeY, this.scaledY, this.scale);
+
+        return relToAbsY(getRawHeight(x, z), this.scaledY, this.scale);
+    }
+
+    /**
+     * <b>WARNING: This method does not mark dirty or update the height. Only to be used for loading / unloading</b>
+     * <p>
+     * Gets the internal (relative) height for a given position
+     */
+    protected int getRawHeight(int x, int z) {
+        return this.heights.get(index(x, z));
+    }
+
+    /**
+     * <b>WARNING: This method does not mark dirty or update the height. Only to be used for loading / unloading</b>
+     * <p>
+     * Sets the internal (relative) height for a given position
+     */
+    protected void setRawHeight(int x, int z, int relativeHeight) {
+        this.heights.set(index(x, z), relativeHeight);
     }
 
     /**
@@ -67,14 +106,22 @@ public abstract class SurfaceTrackerNode {
      */
     protected abstract int updateHeight(int x, int z, int idx);
 
-    public abstract void loadCube(int localSectionX, int localSectionZ, HeightmapStorage storage, HeightmapNode newNode);
+    public abstract void loadSource(int globalSectionX, int globalSectionZ, HeightmapStorage storage, HeightmapSource newSource);
 
     /**
      * Tells a node to unload itself, nulling its parent, and passing itself to the provided storage
      */
-    protected abstract void unload(HeightmapStorage storage);
+    protected abstract void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
 
-    @Nullable public abstract SurfaceTrackerLeaf getMinScaleNode(int y);
+    /**
+     * Tells a node to save itself to the provided storage
+     */
+    protected abstract void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
+
+    /**
+     * Gets the leaf node at the specified Y (delegates to children if required)
+     */
+    @Nullable public abstract SurfaceTrackerLeaf getLeaf(int y);
 
     /**
      * Updates any positions that are dirty (used for unloading section)
@@ -94,16 +141,7 @@ public abstract class SurfaceTrackerNode {
         }
     }
 
-    public void markAncestorsDirty() {
-        for (int z = 0; z < WIDTH_BLOCKS; z++) {
-            for (int x = 0; x < WIDTH_BLOCKS; x++) {
-                // here we mark the tree dirty if their positions are below the top block of this cube
-                this.markTreeDirtyIfRequired(x, z, relToAbsY(SCALE_0_NODE_HEIGHT << this.scale, this.scaledY, this.scale) + 1);
-            }
-        }
-    }
-
-    /** Returns if any position in the SurfaceTrackerSection is dirty*/
+    /** Returns if any position in the SurfaceTrackerNode is dirty*/
     public boolean isAnyDirty() {
         assert dirtyPositions.length == 4;
 
@@ -115,21 +153,7 @@ public abstract class SurfaceTrackerNode {
         return l != 0;
     }
 
-    /** Returns if this SurfaceTrackerSection is dirty at the specified index */
-    protected boolean isDirty(int idx) {
-        return (dirtyPositions[idx >> 6] & (1L << idx)) != 0;
-    }
-
-    /** Sets the index in this SurfaceTrackerSection to non-dirty */
-    protected void clearDirty(int idx) {
-        dirtyPositions[idx >> 6] &= ~(1L << idx);
-    }
-
-    /** Sets the index in this SurfaceTrackerSection to dirty */
-    protected void setDirty(int idx) {
-        dirtyPositions[idx >> 6] |= 1L << idx;
-    }
-
+    /** Sets all positions within the SurfaceTrackerNode to clear */
     public void setAllDirty() {
         assert dirtyPositions.length == 4;
 
@@ -139,11 +163,37 @@ public abstract class SurfaceTrackerNode {
         dirtyPositions[3] = -1;
     }
 
-    /** Sets the index in this and all parent SurfaceTrackerSections to dirty */
-    public void markDirty(int x, int z) {
+    /** Returns if this SurfaceTrackerNode is dirty at the specified index */
+    protected boolean isDirty(int idx) {
+        return (dirtyPositions[idx >> 6] & (1L << idx)) != 0;
+    }
+
+    /** Sets the index in this SurfaceTrackerNode to non-dirty */
+    protected void clearDirty(int idx) {
+        dirtyPositions[idx >> 6] &= ~(1L << idx);
+    }
+
+    /** Sets the index in this SurfaceTrackerNode to dirty */
+    protected void setDirty(int idx) {
+        setRequiresSave();
+        dirtyPositions[idx >> 6] |= 1L << idx;
+    }
+
+    /** Sets the index in this and all parent SurfaceTrackerNodes to dirty */
+    protected void markDirty(int x, int z) {
         setDirty(index(x, z));
         if (parent != null) {
             parent.markDirty(x, z);
+        }
+    }
+
+    /** For all positions, marks all parents dirty if their heights are below this node */
+    public void markAncestorsDirty() {
+        for (int z = 0; z < WIDTH_BLOCKS; z++) {
+            for (int x = 0; x < WIDTH_BLOCKS; x++) {
+                // here we mark the tree dirty if their positions are below the top block of this node
+                this.markTreeDirtyIfRequired(x, z, relToAbsY(SCALE_0_NODE_HEIGHT << this.scale, this.scaledY, this.scale) + 1);
+            }
         }
     }
 
@@ -158,13 +208,36 @@ public abstract class SurfaceTrackerNode {
     }
 
 
-    @Nullable
-    public SurfaceTrackerBranch getParent() {
+    @Nullable public SurfaceTrackerBranch getParent() {
         return parent;
     }
 
+    public int getScale() {
+        return this.scale;
+    }
+
+    public int getScaledY() {
+        return scaledY;
+    }
+
     public byte getRawType() {
-        return heightmapType;
+        return (byte) (heightmapTypeAndRequiresSave >> 1);
+    }
+
+    private void setHeightmapType(byte type) {
+        this.heightmapTypeAndRequiresSave = (byte) ((this.heightmapTypeAndRequiresSave & 0b0000_0001) | (type << 1));
+    }
+
+    public boolean requiresSave() {
+        return (heightmapTypeAndRequiresSave & 0b0000_0001) != 0;
+    }
+
+    private void setRequiresSave() {
+        this.heightmapTypeAndRequiresSave = (byte) (this.heightmapTypeAndRequiresSave | 0b0000_0001);
+    }
+
+    public void clearRequiresSave() {
+        this.heightmapTypeAndRequiresSave = (byte) (this.heightmapTypeAndRequiresSave & 0b1111_1110);
     }
 
     /** Get position x/z index within a column, from global/local pos */
@@ -227,10 +300,10 @@ public abstract class SurfaceTrackerNode {
         return absoluteY + 1 - scaledYBottomY(scaledY, scale) * SCALE_0_NODE_HEIGHT;
     }
 
-    public void writeData(int mainX, int mainZ, MCBitStorage data, int minValue) {
+    public void writeDataForClient(int minX, int minZ, MCBitStorage data, int minValue) {
         for (int dx = 0; dx < 16; dx++) {
             for (int dz = 0; dz < 16; dz++) {
-                int y = getHeight(mainX + dx, mainZ + dz) + 1;
+                int y = getHeight(minX + dx, minZ + dz) + 1;
                 if (y < minValue) {
                     y = minValue;
                 }
@@ -240,11 +313,13 @@ public abstract class SurfaceTrackerNode {
         }
     }
 
-    public int getScale() {
-        return this.scale;
-    }
-
-    public int getScaledY() {
-        return scaledY;
+    /**
+     * Returns the number of bits required to contain a single position at this scale
+     */
+    public static int getBitsForScale(int scale) {
+        if (scale < 0 || scale > MAX_SCALE) {
+            throw new SurfaceTrackerBranch.InvalidScaleException("Invalid scale for node: " + scale);
+        }
+        return BASE_SIZE_BITS + 1 + scale * NODE_COUNT_BITS;
     }
 }

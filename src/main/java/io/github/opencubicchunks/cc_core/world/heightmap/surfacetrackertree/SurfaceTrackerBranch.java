@@ -4,19 +4,37 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.github.opencubicchunks.cc_core.world.heightmap.HeightmapNode;
+import io.github.opencubicchunks.cc_core.world.heightmap.HeightmapSource;
 import io.github.opencubicchunks.cc_core.world.heightmap.HeightmapStorage;
 
 public class SurfaceTrackerBranch extends SurfaceTrackerNode {
-    protected SurfaceTrackerNode[] children = new SurfaceTrackerNode[NODE_COUNT];
+    protected final SurfaceTrackerNode[] children;
 
     private int requiredChildren;
 
     public SurfaceTrackerBranch(int scale, int scaledY,
                                 @Nullable SurfaceTrackerBranch parent, byte heightmapType) {
         super(scale, scaledY, parent, heightmapType);
-        assert scale > 0; //Branches cannot be scale 0
-        assert scale <= SurfaceTrackerNode.MAX_SCALE; //Branches cannot be > MAX_SCALE
+        if (scale <= 0 || scale > MAX_SCALE) {
+            throw new InvalidScaleException("Invalid scale for branch: " + scale);
+        }
+
+        // MAX_SCALE nodes have 2 children
+        this.children = new SurfaceTrackerNode[scale == MAX_SCALE ? ROOT_NODE_COUNT : NODE_COUNT];
+    }
+
+    /**
+     * Should be used when loading from save
+     */
+    public SurfaceTrackerBranch(int scale, int scaledY,
+                                @Nullable SurfaceTrackerBranch parent, byte heightmapType, long[] heightsRaw) {
+        super(scale, scaledY, parent, heightmapType, heightsRaw);
+        if (scale <= 0 || scale > MAX_SCALE) {
+            throw new InvalidScaleException("Invalid scale for branch: " + scale);
+        }
+
+        // MAX_SCALE nodes have 2 children
+        this.children = new SurfaceTrackerNode[scale == MAX_SCALE ? ROOT_NODE_COUNT : NODE_COUNT];
     }
 
     @Override
@@ -43,48 +61,52 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
         }
     }
 
-    @Override public void loadCube(int localSectionX, int localSectionZ, HeightmapStorage storage, HeightmapNode newNode) {
+    @Override public void loadSource(int globalSectionX, int globalSectionZ, HeightmapStorage storage, HeightmapSource newSource) {
         int newScale = scale - 1;
 
         // Attempt to load all children from storage
         for (int i = 0; i < this.children.length; i++) {
             if (children[i] == null) {
                 int newScaledY = indexToScaledY(i, scale, scaledY);
-                children[i] = storage.loadNode(this, this.heightmapType, newScale, newScaledY);
+                children[i] = storage.loadNode(globalSectionX, globalSectionZ, this, this.getRawType(), newScale, newScaledY);
             }
         }
 
-        int idx = indexOfRawHeightNode(newNode.getNodeY(), scale, scaledY);
+        int idx = indexOfRawHeightNode(newSource.getSourceY(), scale, scaledY);
         int newScaledY = indexToScaledY(idx, scale, scaledY);
         if (children[idx] == null) {
-            // If the child containing new node has not been loaded from storage, create it
+            // If the child containing new source has not been loaded from storage, create it
             // Scale 1 nodes create leaf node children
             if (newScale == 0) {
-                children[idx] = new SurfaceTrackerLeaf(newScaledY, this, this.heightmapType);
+                children[idx] = new SurfaceTrackerLeaf(newScaledY, this, this.getRawType());
             } else {
-                children[idx] = new SurfaceTrackerBranch(newScale, newScaledY, this, this.heightmapType);
+                children[idx] = new SurfaceTrackerBranch(newScale, newScaledY, this, this.getRawType());
             }
         }
-        children[idx].loadCube(localSectionX, localSectionZ, storage, newNode);
+        children[idx].loadSource(globalSectionX, globalSectionZ, storage, newSource);
     }
 
-    @Override protected void unload(HeightmapStorage storage) {
+    @Override protected void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
         for (SurfaceTrackerNode child : this.children) {
             assert child == null : "Heightmap branch being unloaded while holding a child?!";
         }
 
         this.parent = null;
 
-        storage.unloadNode(this);
+        this.save(globalSectionX, globalSectionZ, storage);
     }
 
-    @Nullable public SurfaceTrackerLeaf getMinScaleNode(int y) {
+    @Override protected void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
+        storage.saveNode(globalSectionX, globalSectionZ, this);
+    }
+
+    @Nullable public SurfaceTrackerLeaf getLeaf(int y) {
         int idx = indexOfRawHeightNode(y, scale, scaledY);
         SurfaceTrackerNode node = this.children[idx];
         if (node == null) {
             return null;
         }
-        return node.getMinScaleNode(y);
+        return node.getLeaf(y);
     }
 
 
@@ -98,23 +120,29 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
         assert requiredChildren <= this.children.length : "More children than max?!";
     }
 
-    public void onChildUnloaded(HeightmapStorage storage) {
+    /**
+     * Called by a child when it has no required children left, to inform the parent to check its own required state
+     */
+    public void onChildUnloaded(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
         --requiredChildren;
 
         assert requiredChildren >= 0 : "Less than 0 required children?!";
+
+        // Before unloading a child, we (the parent) must have no dirty positions
+        updateDirtyHeights(globalSectionX, globalSectionZ);
 
         if (requiredChildren == 0) {
             SurfaceTrackerNode[] surfaceTrackerNodes = this.children;
             for (int i = 0, surfaceTrackerNodesLength = surfaceTrackerNodes.length; i < surfaceTrackerNodesLength; i++) {
                 SurfaceTrackerNode child = surfaceTrackerNodes[i];
                 if (child != null) {
-                    child.unload(storage);
+                    child.unload(globalSectionX, globalSectionZ, storage);
                     surfaceTrackerNodes[i] = null;
                 }
             }
 
             if (this.parent != null) {
-                this.parent.onChildUnloaded(storage);
+                this.parent.onChildUnloaded(globalSectionX, globalSectionZ, storage);
             }
         }
     }
@@ -122,5 +150,11 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
     @VisibleForTesting
     @Nonnull public SurfaceTrackerNode[] getChildren() {
         return this.children;
+    }
+
+    public static class InvalidScaleException extends RuntimeException {
+        public InvalidScaleException(String message) {
+            super(message);
+        }
     }
 }

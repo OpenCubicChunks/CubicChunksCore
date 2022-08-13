@@ -8,7 +8,7 @@
     <!-- suppress for time measurement code -->
     <suppress checks="InnerAssignment" files="Int3HashSet.java"/>
     <!-- TODO: These probably need refactoring -->
-    <suppress checks="CyclomaticComplexity" files="SurfaceTrackerNodesTest.java"/>
+    <suppress checks="CyclomaticComplexity" files="SurfaceTrackerNodesTest.java|HeightmapStorageTest.java"/>
     <suppress checks="DeclarationOrder" files="MixinNaturalSpawner.java|Int3HashSet.java"/>
     <suppress checks="HiddenField" files="Int3HashSet.java"/>
     <suppress checks="NoFinalizer" files="Int3HashSet.java"/>

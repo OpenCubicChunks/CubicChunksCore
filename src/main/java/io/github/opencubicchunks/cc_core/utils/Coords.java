@@ -151,6 +151,10 @@ public class Coords {
         return localToBlock(cubeVal, BLOCK_SIZE_DIV_2);
     }
 
+    public static int blockToIndex(MCBlockPos pos) {
+        return blockToIndex(pos.getX(), pos.getY(), pos.getZ());
+    }
+
     /**
      * @param blockXVal X position
      * @param blockYVal Y position
@@ -220,10 +224,6 @@ public class Coords {
         //1011101010001, 1010101011100, 1101011101010
         final int mask = POS_TO_INDEX_MASK;
         return (blockXVal & mask) >> 4 | (blockYVal & mask) >> 1 | (blockZVal & mask) << 2;
-    }
-
-    public static int blockToIndex(MCBlockPos pos) {
-        return blockToIndex(pos.getX(), pos.getY(), pos.getZ());
     }
 
     /**
