@@ -15,17 +15,9 @@ import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCVec3i;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 
-public class CubePos implements MCVec3i {
-    static {
-        System.err.println("CUBEPOS LOADED HERE " + CubePos.class.getClassLoader().getClass().getName());
-    }
-
-    private final int x, y, z;
-
+public class CubePos extends MCVec3i {
     private CubePos(int x, int y, int z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        super(x, y, z);
     }
 
     // Used from ASM, do not change
@@ -40,18 +32,6 @@ public class CubePos implements MCVec3i {
 
     public static CubePos of(int x, int y, int z) {
         return new CubePos(x, y, z);
-    }
-
-    @Override public int getX() {
-        return x;
-    }
-
-    @Override public int getY() {
-        return y;
-    }
-
-    @Override public int getZ() {
-        return z;
     }
 
     @Override public long asLong() {
@@ -91,12 +71,12 @@ public class CubePos implements MCVec3i {
         return MCChunkPos.asLong(Coords.cubeToSection(CubePos.extractX(cubePosIn), localX), Coords.cubeToSection(CubePos.extractZ(cubePosIn), localZ));
     }
 
-    public MCChunkPos asMCChunkPos() {
-        return MCChunkPos.of(cubeToSection(this.getX(), 0), cubeToSection(this.getZ(), 0));
+    public MCChunkPos asChunkPos() {
+        return new MCChunkPos(cubeToSection(this.getX(), 0), cubeToSection(this.getZ(), 0));
     }
 
-    public MCChunkPos asMCChunkPos(int dx, int dz) {
-        return MCChunkPos.of(cubeToSection(this.getX(), dx), cubeToSection(this.getZ(), dz));
+    public MCChunkPos asChunkPos(int dx, int dz) {
+        return new MCChunkPos(cubeToSection(this.getX(), dx), cubeToSection(this.getZ(), dz));
     }
 
     public static CubePos from(long cubePosIn) {
@@ -167,17 +147,16 @@ public class CubePos implements MCVec3i {
         return Coords.cubeToMaxBlock(getZ());
     }
 
-
-    public MCSectionPos asMCSectionPos() {
+    public MCSectionPos asSectionPos() {
         return MCSectionPos.of(cubeToSection(this.getX(), 0), cubeToSection(this.getY(), 0), cubeToSection(this.getZ(), 0));
     }
 
-    public MCBlockPos asMCBlockPos() {
-        return MCBlockPos.of(minCubeX(), minCubeY(), minCubeZ());
+    public MCBlockPos asBlockPos() {
+        return new MCBlockPos(minCubeX(), minCubeY(), minCubeZ());
     }
 
-    public MCBlockPos asMCBlockPos(int localX, int localY, int localZ) {
-        return MCBlockPos.of(minCubeX() + localX, minCubeY() + localY, minCubeZ() + localZ);
+    public MCBlockPos asBlockPos(int localX, int localY, int localZ) {
+        return new MCBlockPos(minCubeX() + localX, minCubeY() + localY, minCubeZ() + localZ);
     }
 
     public int blockX(int localX) {
@@ -217,11 +196,11 @@ public class CubePos implements MCVec3i {
     }
 
     public static long sectionToCubeSectionLong(long sectionPosIn) {
-        return CubePos.from(MCSectionPos.of(sectionPosIn)).asMCSectionPos().asLong();
+        return CubePos.from(MCSectionPos.of(sectionPosIn)).asSectionPos().asLong();
     }
   
-    public static Stream<MCSectionPos> mcSectionsAroundCube(CubePos center, int radiusSections) {
-        return MCSectionPos.cube(center.asMCSectionPos(), radiusSections);
+    public static Stream<MCSectionPos> sectionsAroundCube(CubePos center, int radiusSections) {
+        return MCSectionPos.cube(center.asSectionPos(), radiusSections);
     }
 
     public boolean isInsideInclusive(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
@@ -237,10 +216,6 @@ public class CubePos implements MCVec3i {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CubePos cubePos = (CubePos) o;
-        return x == cubePos.x && y == cubePos.y && z == cubePos.z;
-    }
-
-    @Override public int hashCode() {
-        return Objects.hash(x, y, z);
+        return getX() == cubePos.getX() && getY() == cubePos.getY() && getZ() == cubePos.getZ();
     }
 }

@@ -2,16 +2,14 @@ package io.github.opencubicchunks.cc_core.minecraft;
 
 import java.util.stream.Stream;
 
-public interface MCSectionPos extends MCVec3i {
-    static MCSectionPos of(int x, int y, int z) {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
+public abstract class MCSectionPos extends MCVec3i {
+    private MCSectionPos(int x, int y, int z) {
+        super(x, y, z);
     }
 
-    static MCSectionPos of(long sectionPosLong) {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
+    public native static MCSectionPos of(int x, int y, int z);
 
-    static Stream<MCSectionPos> cube(MCSectionPos sectionPos, int i) {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
+    public native static MCSectionPos of(long sectionPosLong);
+
+    public native static Stream<MCSectionPos> cube(MCSectionPos sectionPos, int i);
 }

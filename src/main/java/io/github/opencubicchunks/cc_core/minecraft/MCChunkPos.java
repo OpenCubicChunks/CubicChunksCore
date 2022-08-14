@@ -1,15 +1,14 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-public interface MCChunkPos {
-    int getX();
-    int getZ();
-
-    long toLong();
-
-    static MCChunkPos of(int x, int z) {
+public class MCChunkPos {
+    public MCChunkPos(int x, int y) {
         throw new IllegalStateException("Per-version doesn't overwrite method");
     }
-    static long asLong(int x, int z) {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
+
+    public native int getX();
+    public native int getZ();
+
+    public native long toLong();
+
+    public native static long asLong(int x, int z);
 }

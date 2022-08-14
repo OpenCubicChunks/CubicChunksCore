@@ -61,7 +61,7 @@ public final class SpawnPlaceFinder {
     }
 
     private static MCBlockPos middleY(MCBlockPos min, MCBlockPos max) {
-        return MCBlockPos.of(min.getX(), (int) ((min.getY() + (long) max.getY()) >> 1), min.getZ());
+        return new MCBlockPos(min.getX(), (int) ((min.getY() + (long) max.getY()) >> 1), min.getZ());
     }
 
     @Nullable
@@ -105,6 +105,6 @@ public final class SpawnPlaceFinder {
     private static MCBlockPos inWorldUp(MCLevelHeightAccessor level, MCBlockPos original, double up) {
         int y = (int) (original.getY() + up);
         y = MathUtil.clamp(y, level.getMinBuildHeight(), level.getMaxBuildHeight());
-        return MCBlockPos.of(original.getX(), y, original.getZ());
+        return new MCBlockPos(original.getX(), y, original.getZ());
     }
 }

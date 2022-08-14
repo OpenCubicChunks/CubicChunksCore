@@ -19,7 +19,7 @@ public class CubePosTest {
         for (int x = Integer.MIN_VALUE / 16; x < Integer.MAX_VALUE / 16; x += Integer.MAX_VALUE / 16 / 500) {
             for (int y = Integer.MIN_VALUE / 16; y < Integer.MAX_VALUE / 16; y += Integer.MAX_VALUE / 16 / 500) {
                 for (int z = Integer.MIN_VALUE / 16; z < Integer.MAX_VALUE / 16; z += Integer.MAX_VALUE / 16 / 500) {
-                    MCChunkPos chunkPos = CubePos.of(x, y, z).asMCChunkPos();
+                    MCChunkPos chunkPos = CubePos.of(x, y, z).asChunkPos();
                     CubePos cubePos = CubePos.from(chunkPos, y);
 
                     assertEquals(x, cubePos.getX());
@@ -33,7 +33,7 @@ public class CubePosTest {
         for (int x = Integer.MIN_VALUE / 16; x < Integer.MAX_VALUE / 16; x += Integer.MAX_VALUE / 16 / 500) {
             for (int y = Integer.MIN_VALUE / 16; y < Integer.MAX_VALUE / 16; y += Integer.MAX_VALUE / 16 / 500) {
                 for (int z = Integer.MIN_VALUE / 16; z < Integer.MAX_VALUE / 16; z += Integer.MAX_VALUE / 16 / 500) {
-                    MCSectionPos sectionPos = CubePos.of(x, y, z).asMCSectionPos();
+                    MCSectionPos sectionPos = CubePos.of(x, y, z).asSectionPos();
                     CubePos cubePos = CubePos.from(sectionPos);
 
                     assertEquals(x, cubePos.getX());

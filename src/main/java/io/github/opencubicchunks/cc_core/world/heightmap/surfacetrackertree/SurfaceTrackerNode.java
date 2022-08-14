@@ -48,7 +48,7 @@ public abstract class SurfaceTrackerNode {
 
     public SurfaceTrackerNode(int scale, int scaledY, @Nullable SurfaceTrackerBranch parent, byte heightmapType) {
         // +1 in bit size to make room for null values
-        this.heights = MCBitStorage.create(getBitsForScale(scale), WIDTH_BLOCKS * WIDTH_BLOCKS);
+        this.heights = new MCBitStorage(getBitsForScale(scale), WIDTH_BLOCKS * WIDTH_BLOCKS);
         this.dirtyPositions = new long[WIDTH_BLOCKS * WIDTH_BLOCKS / Long.SIZE];
         this.parent = parent;
         this.scaledY = scaledY;
@@ -62,7 +62,7 @@ public abstract class SurfaceTrackerNode {
      */
     public SurfaceTrackerNode(int scale, int scaledY, @Nullable SurfaceTrackerBranch parent, byte heightmapType, long[] heightsRaw) {
         // +1 in bit size to make room for null values
-        this.heights = MCBitStorage.create(getBitsForScale(scale), WIDTH_BLOCKS * WIDTH_BLOCKS, heightsRaw);
+        this.heights = new MCBitStorage(getBitsForScale(scale), WIDTH_BLOCKS * WIDTH_BLOCKS, heightsRaw);
         this.dirtyPositions = new long[WIDTH_BLOCKS * WIDTH_BLOCKS / Long.SIZE];
         this.parent = parent;
         this.scaledY = scaledY;

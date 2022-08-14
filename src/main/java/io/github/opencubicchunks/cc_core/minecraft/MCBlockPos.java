@@ -1,21 +1,15 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-public interface MCBlockPos extends MCVec3i {
-    static MCBlockPos of(int x, int y, int z) {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
+public class MCBlockPos extends MCVec3i {
+    public MCBlockPos(int x, int y, int z) {
+        super(x, y, z);
     }
 
-    default MCBlockPos above() {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
-    default MCBlockPos above(int i) {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
+    @Override public native long asLong();
 
-    default MCBlockPos below() {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
-    default MCBlockPos below(int i) {
-        throw new IllegalStateException("Per-version doesn't overwrite method");
-    }
+    public native MCBlockPos above();
+    public native MCBlockPos above(int i);
+
+    public native MCBlockPos below();
+    public native MCBlockPos below(int i);
 }

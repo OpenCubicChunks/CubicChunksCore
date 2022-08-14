@@ -332,7 +332,7 @@ public class Coords {
      *
      * @return The SectionPos of the LevelChunkSection at index i
      */
-    public static MCSectionPos mcSectionPosByIndex(CubePos cubePos, int i) {
+    public static MCSectionPos sectionPosByIndex(CubePos cubePos, int i) {
         return MCSectionPos.of(cubeToSection(cubePos.getX(), indexToX(i)), cubeToSection(cubePos.getY(), indexToY(i)), cubeToSection(cubePos.getZ(),
             indexToZ(i)));
     }
@@ -343,8 +343,8 @@ public class Coords {
      *
      * @return The ChunkPos of the column containing the LevelChunkSection at index i
      */
-    public static MCChunkPos mcChunkPosByIndex(CubePos cubePos, int i) {
-        return MCChunkPos.of(cubeToSection(cubePos.getX(), indexToX(i)), cubeToSection(cubePos.getZ(), indexToZ(i)));
+    public static MCChunkPos chunkPosByIndex(CubePos cubePos, int i) {
+        return new MCChunkPos(cubeToSection(cubePos.getX(), indexToX(i)), cubeToSection(cubePos.getZ(), indexToZ(i)));
     }
 
     public static int blockToCubeLocalSection(int x) {
@@ -357,7 +357,7 @@ public class Coords {
     }
 
     public static MCBlockPos sectionPosToMinBlockPos(MCSectionPos sectionPos) {
-        return MCBlockPos.of(sectionToMinBlock(sectionPos.getX()), sectionToMinBlock(sectionPos.getY()), sectionToMinBlock(sectionPos.getZ()));
+        return new MCBlockPos(sectionToMinBlock(sectionPos.getX()), sectionToMinBlock(sectionPos.getY()), sectionToMinBlock(sectionPos.getZ()));
     }
 
     /**

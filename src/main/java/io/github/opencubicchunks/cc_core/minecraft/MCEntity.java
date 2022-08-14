@@ -1,7 +1,7 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-public interface MCEntity {
-    double getX();
-    double getY();
-    double getZ();
+public abstract class MCEntity {
+    public abstract double getX();
+    public abstract double getY();
+    public abstract double getZ();
 }
