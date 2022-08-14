@@ -86,7 +86,7 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
         children[idx].loadSource(globalSectionX, globalSectionZ, storage, newSource);
     }
 
-    @Override protected void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
+    @Override public void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
         for (SurfaceTrackerNode child : this.children) {
             assert child == null : "Heightmap branch being unloaded while holding a child?!";
         }
@@ -96,7 +96,7 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
         this.save(globalSectionX, globalSectionZ, storage);
     }
 
-    @Override protected void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
+    @Override public void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
         storage.saveNode(globalSectionX, globalSectionZ, this);
     }
 

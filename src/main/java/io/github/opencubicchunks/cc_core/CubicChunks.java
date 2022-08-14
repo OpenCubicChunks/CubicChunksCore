@@ -1,7 +1,6 @@
 package io.github.opencubicchunks.cc_core;
 
-import io.github.opencubicchunks.cc_core.config.CommonConfig;
-import io.github.opencubicchunks.cc_core.config.EarlyConfig;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,13 +20,8 @@ public class CubicChunks {
 
     public static final String PROTOCOL_VERSION = "0";
 
-    protected static final CommonConfig CONFIG = CommonConfig.getConfig();
 
     public CubicChunks() {
-        EarlyConfig.getDiameterInSections();
-    }
-
-    public static CommonConfig config() {
-        return CONFIG;
+        CubePos.class.getName();
     }
 }

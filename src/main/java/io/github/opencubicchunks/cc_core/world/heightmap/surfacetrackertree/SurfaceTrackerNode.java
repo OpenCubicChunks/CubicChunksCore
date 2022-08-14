@@ -111,12 +111,12 @@ public abstract class SurfaceTrackerNode {
     /**
      * Tells a node to unload itself, nulling its parent, and passing itself to the provided storage
      */
-    protected abstract void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
+    public abstract void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
 
     /**
      * Tells a node to save itself to the provided storage
      */
-    protected abstract void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
+    public abstract void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
 
     /**
      * Gets the leaf node at the specified Y (delegates to children if required)
@@ -180,7 +180,7 @@ public abstract class SurfaceTrackerNode {
     }
 
     /** Sets the index in this and all parent SurfaceTrackerNodes to dirty */
-    protected void markDirty(int x, int z) {
+    public void markDirty(int x, int z) {
         setDirty(index(x, z));
         if (parent != null) {
             parent.markDirty(x, z);

@@ -58,7 +58,7 @@ public class SurfaceTrackerLeaf extends SurfaceTrackerNode {
         }
     }
 
-    @Override protected void unload(int globalSectionX, int globalSectionZ, @Nonnull HeightmapStorage storage) {
+    @Override public void unload(int globalSectionX, int globalSectionZ, @Nonnull HeightmapStorage storage) {
         assert this.source == null : "Heightmap leaf being unloaded while holding a source node?!";
 
         this.parent = null;
@@ -66,7 +66,7 @@ public class SurfaceTrackerLeaf extends SurfaceTrackerNode {
         this.save(globalSectionX, globalSectionZ, storage);
     }
 
-    @Override protected void save(int globalSectionX, int globalSectionZ, @Nonnull HeightmapStorage storage) {
+    @Override public void save(int globalSectionX, int globalSectionZ, @Nonnull HeightmapStorage storage) {
         storage.saveNode(globalSectionX, globalSectionZ, this);
     }
 
