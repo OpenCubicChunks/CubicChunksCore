@@ -7,15 +7,23 @@ plugins {
 apply plugin: "java"
 
 test {
-    useJUnitPlatform()
+    // Tests are disabled because our jar contains none of the actual minecraft classes
+    // They should be run instead by the parent project after it transforms our jar
+    enabled(false)
+}
 
-    // Always run tests, even when nothing changed.
-    dependsOn 'cleanTest'
+// this is for dependant projects to run the tests after transforming the Core jar
+task testsJar(type: Jar) {
+    from(sourceSets.test.output)
+    archiveClassifier.set("tests")
+}
 
-    // Show test results.
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
+configurations {
+    create("testArchivesOutput")
+}
+
+artifacts {
+    add("testArchivesOutput", testsJar)
 }
 
 task generatePackageInfo {

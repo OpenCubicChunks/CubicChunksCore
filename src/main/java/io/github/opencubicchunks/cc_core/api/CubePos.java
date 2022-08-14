@@ -87,7 +87,7 @@ public class CubePos extends MCVec3i {
     }
 
     public static CubePos from(MCChunkPos position, int yPos) {
-        return new CubePos(sectionToCube(position.getX()), yPos, sectionToCube(position.getZ()));
+        return new CubePos(sectionToCube(position.x), yPos, sectionToCube(position.z));
     }
 
     public static CubePos from(MCSectionPos sectionPos) {
