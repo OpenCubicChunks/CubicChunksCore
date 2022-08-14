@@ -4,7 +4,6 @@ import static io.github.opencubicchunks.cc_core.utils.Coords.blockToCube;
 import static io.github.opencubicchunks.cc_core.utils.Coords.cubeToSection;
 import static io.github.opencubicchunks.cc_core.utils.Coords.sectionToCube;
 
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.google.common.base.MoreObjects;
@@ -34,7 +33,7 @@ public class CubePos extends MCVec3i {
         return new CubePos(x, y, z);
     }
 
-    @Override public long asLong() {
+    public long asLong() {
         long i = 0L;
         i |= ((long) this.getX() & (1 << 21) - 1) << 43;
         i |= ((long) this.getY() & (1 << 22) - 1);
@@ -217,5 +216,9 @@ public class CubePos extends MCVec3i {
         if (o == null || getClass() != o.getClass()) return false;
         CubePos cubePos = (CubePos) o;
         return getX() == cubePos.getX() && getY() == cubePos.getY() && getZ() == cubePos.getZ();
+    }
+
+    @Override public int hashCode() {
+        return super.hashCode();
     }
 }

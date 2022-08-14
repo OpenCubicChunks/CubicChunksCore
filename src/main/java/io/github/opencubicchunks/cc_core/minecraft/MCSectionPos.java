@@ -7,6 +7,8 @@ public abstract class MCSectionPos extends MCVec3i {
         super(x, y, z);
     }
 
+    public native long asLong();
+
     public native static MCSectionPos of(int x, int y, int z);
 
     public native static MCSectionPos of(long sectionPosLong);

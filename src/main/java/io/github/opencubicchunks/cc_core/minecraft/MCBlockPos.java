@@ -5,7 +5,7 @@ public class MCBlockPos extends MCVec3i {
         super(x, y, z);
     }
 
-    @Override public native long asLong();
+    public native long asLong();
 
     public native MCBlockPos above();
     public native MCBlockPos above(int i);

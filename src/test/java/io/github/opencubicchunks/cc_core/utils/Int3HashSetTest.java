@@ -43,7 +43,7 @@ public class Int3HashSetTest {
                 int y = rng.applyAsInt(r);
                 int z = rng.applyAsInt(r);
 
-                boolean b0 = reference.add(MCVec3i.of(x, y, z));
+                boolean b0 = reference.add(new MCVec3i(x, y, z));
                 boolean b1 = test.add(x, y, z);
                 if (b0 != b1) {
                     throw new IllegalStateException();
@@ -69,7 +69,7 @@ public class Int3HashSetTest {
         checkState(reference.size() == test.size());
 
         reference.forEach(v -> checkState(test.contains(v.getX(), v.getY(), v.getZ())));
-        test.forEach((x, y, z) -> checkState(reference.contains(MCVec3i.of(x, y, z))));
+        test.forEach((x, y, z) -> checkState(reference.contains(new MCVec3i(x, y, z))));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class Int3HashSetTest {
                 int y = rng.applyAsInt(r);
                 int z = rng.applyAsInt(r);
 
-                if (!reference.add(MCVec3i.of(x, y, z))) {
+                if (!reference.add(new MCVec3i(x, y, z))) {
                     i--;
                     continue;
                 }
@@ -129,7 +129,7 @@ public class Int3HashSetTest {
                 int y = rng.applyAsInt(r);
                 int z = rng.applyAsInt(r);
 
-                checkState(reference.add(MCVec3i.of(x, y, z)) == test.add(x, y, z));
+                checkState(reference.add(new MCVec3i(x, y, z)) == test.add(x, y, z));
             }
 
             this.ensureEqual(reference, test);
