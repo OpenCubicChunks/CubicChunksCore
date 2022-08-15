@@ -1,5 +1,8 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
+import io.github.opencubicchunks.cc_core.annotation.DeclaresClass;
+
+@DeclaresClass("net.minecraft.core.BlockPos")
 public class MCBlockPos extends MCVec3i {
     public MCBlockPos(int x, int y, int z) {
         super(x, y, z);
