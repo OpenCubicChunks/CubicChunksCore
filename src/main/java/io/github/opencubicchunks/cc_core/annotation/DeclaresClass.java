@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 /**
  * Marks that a class must be replaced by the class in {@code value}
  *
- * If the target class is an interface, use an interface
- * If the target class is an interface, use an interface
+ * If the target is a class (or abstract class), use a class (or abstract class)
+ * If the target is an interface, use an interface
  *
  * {@link RetentionPolicy#RUNTIME} to make things easier to debug, it's not actually necessary
  */
