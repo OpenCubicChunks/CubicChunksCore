@@ -15,6 +15,9 @@ test {
 // this is for dependant projects to run the tests after transforming the Core jar
 task testsJar(type: Jar) {
     from(sourceSets.test.output)
+    from(sourceSets.main.output) {
+        include('io/github/opencubicchunks/cc_core/minecraft/**/*')
+    }
     archiveClassifier.set("tests")
 }
 
