@@ -1,7 +1,6 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-
-import io.github.opencubicchunks.cc_core.annotation.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
 
 @DeclaresClass("net.minecraft.core.Vec3i")
 public class MCVec3i {

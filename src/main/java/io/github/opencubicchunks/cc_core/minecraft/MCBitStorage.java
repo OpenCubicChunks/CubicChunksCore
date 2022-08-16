@@ -1,6 +1,6 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-import io.github.opencubicchunks.cc_core.annotation.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
 
 @DeclaresClass("net.minecraft.util.BitStorage")
 public class MCBitStorage {

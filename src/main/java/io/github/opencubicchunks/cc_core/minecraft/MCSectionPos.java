@@ -2,7 +2,7 @@ package io.github.opencubicchunks.cc_core.minecraft;
 
 import java.util.stream.Stream;
 
-import io.github.opencubicchunks.cc_core.annotation.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
 
 @DeclaresClass("net.minecraft.core.SectionPos")
 public abstract class MCSectionPos extends MCVec3i {
