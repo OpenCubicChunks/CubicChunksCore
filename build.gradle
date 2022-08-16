@@ -52,7 +52,6 @@ configurations {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
@@ -75,7 +74,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.github.opencubicchunks:javaheaders-api:1.1.3'
+    implementation 'com.github.OpenCubicChunks:javaheaders-api:c9039d4ff8'
     /*include*/ implementation('io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT')
 
     implementation group: 'com.google.guava', name: 'guava', version: '21.0'

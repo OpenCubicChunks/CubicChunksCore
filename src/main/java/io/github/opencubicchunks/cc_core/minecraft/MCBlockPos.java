@@ -1,8 +1,8 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.Header;
 
-@DeclaresClass("net.minecraft.core.BlockPos")
+@Header
 public class MCBlockPos extends MCVec3i {
     public MCBlockPos(int x, int y, int z) {
         super(x, y, z);

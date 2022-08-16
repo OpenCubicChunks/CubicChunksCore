@@ -1,8 +1,8 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.Header;
 
-@DeclaresClass("net.minecraft.core.Vec3i")
+@Header
 public class MCVec3i {
     public MCVec3i(int x, int y, int z) {
         throw new IllegalStateException("Per-version doesn't overwrite method");

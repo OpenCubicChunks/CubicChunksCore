@@ -1,8 +1,8 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.Header;
 
-@DeclaresClass("net.minecraft.world.entity.Entity")
+@Header
 public abstract class MCEntity {
     public abstract double getX();
     public abstract double getY();

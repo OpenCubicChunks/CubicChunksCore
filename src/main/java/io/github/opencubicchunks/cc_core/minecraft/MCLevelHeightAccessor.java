@@ -1,8 +1,8 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.Header;
 
-@DeclaresClass("net.minecraft.world.level.LevelHeightAccessor")
+@Header
 public interface MCLevelHeightAccessor {
     int getMinBuildHeight();
 

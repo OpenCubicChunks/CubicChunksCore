@@ -1,8 +1,8 @@
 package io.github.opencubicchunks.cc_core.minecraft;
 
-import io.github.opencubicchunks.javaheaders.api.DeclaresClass;
+import io.github.opencubicchunks.javaheaders.api.Header;
 
-@DeclaresClass("net.minecraft.util.BitStorage")
+@Header
 public class MCBitStorage {
     public MCBitStorage(int bits, int size) {
         throw new IllegalStateException("Per-version doesn't overwrite method");
