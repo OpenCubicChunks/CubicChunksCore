@@ -6,6 +6,12 @@ plugins {
 
 apply plugin: "java"
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
+}
+
 test {
     // Tests are disabled because our jar contains none of the actual minecraft classes
     // They should be run instead by the parent project after it transforms our jar
