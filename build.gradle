@@ -28,11 +28,20 @@ task testsJar(type: Jar) {
 }
 
 configurations {
-    create("testArchivesOutput")
+    create("testArchivesOutput") {
+        canBeConsumed = true
+        canBeResolved = false
+    }
+
+    create("jarOutputs") {
+        canBeConsumed = true
+        canBeResolved = false
+    }
 }
 
 artifacts {
     add("testArchivesOutput", testsJar)
+    add("jarOutputs", jar)
 }
 
 task generatePackageInfo {
