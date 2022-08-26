@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.BitSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -30,7 +31,7 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
 
     private static final int ENTRIES_PER_FILE = REGION_WIDTH_IN_NODES * REGION_WIDTH_IN_NODES * WIDTH_BLOCKS * WIDTH_BLOCKS;
 
-    private final Object2ReferenceOpenHashMap<NodeRegionPosition, BitSet> fileCache = new Object2ReferenceOpenHashMap<>(64);
+    private final Object2ReferenceOpenHashMap<NodeRegionPosition, Optional<BitSet>> fileCache = new Object2ReferenceOpenHashMap<>(64);
 
     private final File storageFolder;
     private boolean isClosed = false;
@@ -68,8 +69,10 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
 
         try {
             NodeRegionPosition nodeRegionPosition = new NodeRegionPosition(regionPosX, regionPosZ, node.getScale(), node.getScaledY(), node.getRawType());
-            BitSet bits = fileCache.remove(nodeRegionPosition);
-            if (bits == null) {
+            Optional<BitSet> cacheOptional = fileCache.remove(nodeRegionPosition);
+
+            BitSet bits;
+            if (cacheOptional.isEmpty()) {
                 ByteBuffer data;
                 Path filePath = storageFolder.toPath().resolve(getRegionName(nodeRegionPosition));
                 if (Files.exists(filePath)) {
@@ -78,13 +81,14 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
                 } else {
                     bits = new BitSet(ENTRIES_PER_FILE * SurfaceTrackerNode.getBitsForScale(node.getScale()));
                 }
+                fileCache.put(nodeRegionPosition, Optional.of(bits));
+            } else {
+                bits = cacheOptional.get();
             }
 
             writeNode(globalSectionX, globalSectionZ, node, bits);
             // clear after writing so that if it fails we attempt to write again
             node.clearRequiresSave();
-
-            fileCache.put(nodeRegionPosition, bits);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -100,8 +104,10 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
 
         try {
             NodeRegionPosition nodeRegionPosition = new NodeRegionPosition(regionPosX, regionPosZ, scale, scaledY, heightmapType);
-            BitSet bits = fileCache.get(nodeRegionPosition);
-            if (bits == null) {
+            Optional<BitSet> cacheOptional = fileCache.get(nodeRegionPosition);
+
+            BitSet bits;
+            if (cacheOptional == null) {
                 ByteBuffer data;
                 Path filePath = storageFolder.toPath().resolve(getRegionName(nodeRegionPosition));
                 if (Files.exists(filePath)) {
@@ -109,10 +115,16 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
                         data = ByteBuffer.wrap(inputStream.readAllBytes());
                     }
                 } else {
+                    fileCache.put(nodeRegionPosition, Optional.empty());
                     return null;
                 }
                 bits = BitSet.valueOf(data.position(0));
-                fileCache.put(nodeRegionPosition, bits);
+                fileCache.put(nodeRegionPosition, Optional.of(bits));
+            } else {
+                if (cacheOptional.isEmpty()) {
+                    return null;
+                }
+                bits = cacheOptional.get();
             }
 
             SurfaceTrackerNode node;
@@ -182,10 +194,16 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
         }
 
         IOException suppressed = null;
-        for (ObjectIterator<Map.Entry<NodeRegionPosition, BitSet>> iterator = this.fileCache.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry<NodeRegionPosition, BitSet> entry = iterator.next();
+        for (ObjectIterator<Map.Entry<NodeRegionPosition, Optional<BitSet>>> iterator = this.fileCache.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry<NodeRegionPosition, Optional<BitSet>> entry = iterator.next();
             NodeRegionPosition nodeRegionPosition = entry.getKey();
-            BitSet bitSet = entry.getValue();
+            Optional<BitSet> value = entry.getValue();
+
+            if (value.isEmpty()) {
+                continue;
+            }
+
+            BitSet bitSet = value.get();
             try {
                 try (OutputStream outputStream = new DeflaterOutputStream(new FileOutputStream(
                     this.storageFolder.toPath().resolve(getRegionName(nodeRegionPosition)).toFile()))) {
