@@ -72,7 +72,7 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
             Optional<BitSet> cacheOptional = fileCache.remove(nodeRegionPosition);
 
             BitSet bits;
-            if (cacheOptional.isEmpty()) {
+            if (cacheOptional == null || cacheOptional.isEmpty()) {
                 ByteBuffer data;
                 Path filePath = storageFolder.toPath().resolve(getRegionName(nodeRegionPosition));
                 if (Files.exists(filePath)) {
