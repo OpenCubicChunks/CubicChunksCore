@@ -4,7 +4,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class CubicChunks {
+public class CubicChunksBase {
 
     // TODO: debug and fix optimized cubeload
     public static final boolean OPTIMIZED_CUBELOAD = false;
@@ -21,7 +21,7 @@ public class CubicChunks {
     public static final String PROTOCOL_VERSION = "0";
 
 
-    public CubicChunks() {
+    public CubicChunksBase() {
         CubePos.class.getName();
     }
 }

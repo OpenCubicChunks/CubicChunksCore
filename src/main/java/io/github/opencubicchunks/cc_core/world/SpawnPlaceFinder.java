@@ -4,7 +4,7 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import io.github.opencubicchunks.cc_core.CubicChunks;
+import io.github.opencubicchunks.cc_core.CubicChunksBase;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockGetter;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCLevelHeightAccessor;
@@ -23,17 +23,17 @@ public final class SpawnPlaceFinder {
                                                Predicate<MCBlockPos> isEmptyCollision) {
         MCBlockPos minPos, maxPos;
         if (findNonEmpty(pos, isEmptyCollision) == null) {
-            CubicChunks.LOGGER.debug("Starting bisect with empty space at init {}", pos);
+            CubicChunksBase.LOGGER.debug("Starting bisect with empty space at init {}", pos);
             maxPos = pos;
             minPos = findMinPos(level, pos, isEmptyCollision);
         } else {
-            CubicChunks.LOGGER.debug("Starting bisect without empty space at init {}", pos);
+            CubicChunksBase.LOGGER.debug("Starting bisect without empty space at init {}", pos);
             minPos = pos;
             maxPos = findMaxPos(level, pos, isEmptyCollision);
         }
-        CubicChunks.LOGGER.debug("Found minPos {} and maxPos {}", minPos, maxPos);
+        CubicChunksBase.LOGGER.debug("Found minPos {} and maxPos {}", minPos, maxPos);
         if (minPos == null || maxPos == null) {
-            CubicChunks.LOGGER.error("No suitable spawn found, using original input {} (min={}, max={})", pos, minPos, maxPos);
+            CubicChunksBase.LOGGER.error("No suitable spawn found, using original input {} (min={}, max={})", pos, minPos, maxPos);
             return null;
         }
         assert findNonEmpty(maxPos, isEmptyCollision) == null && findNonEmpty(minPos, isEmptyCollision) != null;
@@ -46,7 +46,7 @@ public final class SpawnPlaceFinder {
 
     private static MCBlockPos bisect(MCBlockPos min, MCBlockPos max, Predicate<MCBlockPos> isEmptyCollision) {
         while (min.getY() < max.getY() - 1) {
-            CubicChunks.LOGGER.debug("Bisect step with min={}, max={}", min, max);
+            CubicChunksBase.LOGGER.debug("Bisect step with min={}, max={}", min, max);
             MCBlockPos middle = middleY(min, max);
             if (findNonEmpty(middle, isEmptyCollision) != null) {
                 // middle has solid space, so it can be used as new minimum
@@ -70,7 +70,7 @@ public final class SpawnPlaceFinder {
         double dy = 16;
         while (findNonEmpty(inWorldUp(level, pos, -dy), isEmptyCollision) == null) {
             if (dy > Integer.MAX_VALUE) {
-                CubicChunks.LOGGER.debug("Error finding spawn point: can't find solid start height at {}", pos);
+                CubicChunksBase.LOGGER.debug("Error finding spawn point: can't find solid start height at {}", pos);
                 return null;
             }
             dy *= 2;
@@ -84,7 +84,7 @@ public final class SpawnPlaceFinder {
         double dy = 16;
         while (findNonEmpty(inWorldUp(level, pos, dy), isEmptyCollision) != null) {
             if (dy > Integer.MAX_VALUE) {
-                CubicChunks.LOGGER.debug("Error finding spawn point: can't find non-solid end height at {}", pos);
+                CubicChunksBase.LOGGER.debug("Error finding spawn point: can't find non-solid end height at {}", pos);
                 return null;
             }
             dy *= 2;
