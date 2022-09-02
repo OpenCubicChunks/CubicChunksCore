@@ -69,7 +69,7 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
 
         try {
             NodeRegionPosition nodeRegionPosition = new NodeRegionPosition(regionPosX, regionPosZ, node.getScale(), node.getScaledY(), node.getRawType());
-            Optional<BitSet> cacheOptional = fileCache.remove(nodeRegionPosition);
+            Optional<BitSet> cacheOptional = fileCache.get(nodeRegionPosition);
 
             BitSet bits;
             if (cacheOptional == null || cacheOptional.isEmpty()) {
