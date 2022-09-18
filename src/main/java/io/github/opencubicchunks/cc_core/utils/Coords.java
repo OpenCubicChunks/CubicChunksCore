@@ -25,6 +25,8 @@
 
 package io.github.opencubicchunks.cc_core.utils;
 
+import static io.github.opencubicchunks.cc_core.api.CubicConstants.DIAMETER_IN_SECTIONS;
+
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
@@ -46,8 +48,10 @@ public class Coords {
     public static final int NO_HEIGHT = Integer.MIN_VALUE + 32;
 
     private static final int LOG2_BLOCK_SIZE = MathUtil.log2(CubicConstants.DIAMETER_IN_BLOCKS);
+    private static final int LOG2_DIAMETER_IN_SECTIONS = MathUtil.log2(DIAMETER_IN_SECTIONS);
 
     private static final int BLOCK_SIZE_MINUS_1 = CubicConstants.DIAMETER_IN_BLOCKS - 1;
+    private static final int LOCAL_COLUMN_POS_MASK = DIAMETER_IN_SECTIONS - 1;
     private static final int BLOCK_SIZE_DIV_2 = CubicConstants.DIAMETER_IN_BLOCKS / 2;
     private static final int BLOCK_SIZE_DIV_16 = CubicConstants.DIAMETER_IN_BLOCKS / 16;
     private static final int BLOCK_SIZE_DIV_32 = CubicConstants.DIAMETER_IN_BLOCKS / 32;
@@ -68,6 +72,18 @@ public class Coords {
             mask += i;
         }
         return mask;
+    }
+
+    public static int columnToColumnIndex(int columnCubeLocalX, int columnCubeLocalZ) {
+        return columnCubeLocalX | columnCubeLocalZ << LOG2_DIAMETER_IN_SECTIONS;
+    }
+
+    public static int columnIndexToLocalX(int idx) {
+        return idx & LOCAL_COLUMN_POS_MASK;
+    }
+
+    public static int columnIndexToLocalZ(int idx) {
+        return (idx >> LOG2_DIAMETER_IN_SECTIONS) & LOCAL_COLUMN_POS_MASK;
     }
 
     /**
