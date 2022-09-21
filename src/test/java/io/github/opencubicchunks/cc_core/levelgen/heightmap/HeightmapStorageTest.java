@@ -2,6 +2,7 @@ package io.github.opencubicchunks.cc_core.levelgen.heightmap;
 
 
 import static io.github.opencubicchunks.cc_core.testutils.Utils.forEachBlockColumnSurfaceTrackerNode;
+import static io.github.opencubicchunks.cc_core.utils.Coords.blockToCube;
 import static io.github.opencubicchunks.cc_core.utils.Coords.blockToSection;
 import static io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerNode.SCALE_0_NODE_HEIGHT;
 import static io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerNode.WIDTH_BLOCKS;
@@ -36,7 +37,7 @@ public class HeightmapStorageTest {
         // setup
         HeightmapStorage storage = new InterleavedHeightmapStorage(tempDirectory.toFile());
         SurfaceTrackerLeaf leaf = new SurfaceTrackerLeaf(1, null, heightmapType);
-        SurfaceTrackerNodesTest.TestHeightmapSource32 testNode = new SurfaceTrackerNodesTest.TestHeightmapSource32(0, 1, 0);
+        SurfaceTrackerNodesTest.TestHeightmapSource testNode = new SurfaceTrackerNodesTest.TestHeightmapSource(0, 1, 0);
         leaf.loadSource(0, 0, storage, testNode);
 
         // set heights
@@ -72,25 +73,25 @@ public class HeightmapStorageTest {
     public void testReloadManyLeaves(byte heightmapType) throws IOException {
         // setup
         HeightmapStorage storage = new InterleavedHeightmapStorage(tempDirectory.toFile());
-        int testSize = 128;
+        int testSize = 64;
         SurfaceTrackerLeaf[] leaves = new SurfaceTrackerLeaf[testSize * testSize];
-        SurfaceTrackerNodesTest.TestHeightmapSource16[] nodes = new SurfaceTrackerNodesTest.TestHeightmapSource16[testSize * testSize];
+        SurfaceTrackerNodesTest.TestHeightmapSource[] nodes = new SurfaceTrackerNodesTest.TestHeightmapSource[testSize * testSize];
         for (int i = 0; i < leaves.length; i++) {
             leaves[i] = new SurfaceTrackerLeaf(1, null, heightmapType);
         }
 
         for (int nodeX = 0; nodeX < testSize; nodeX++) {
             for (int nodeZ = 0; nodeZ < testSize; nodeZ++) {
-                SurfaceTrackerNodesTest.TestHeightmapSource16 node = new SurfaceTrackerNodesTest.TestHeightmapSource16(nodeX, 1, nodeZ);
+                SurfaceTrackerNodesTest.TestHeightmapSource node = new SurfaceTrackerNodesTest.TestHeightmapSource(nodeX, 1, nodeZ);
                 leaves[nodeX + nodeZ * testSize].loadSource(nodeX, nodeZ, storage, node);
                 nodes[nodeX + nodeZ * testSize] = node;
             }
         }
 
-        BiFunction<Integer, Integer, SurfaceTrackerNodesTest.TestHeightmapSource16> getNode = (sectionX, sectionZ) -> nodes[sectionX + sectionZ * testSize];
+        BiFunction<Integer, Integer, SurfaceTrackerNodesTest.TestHeightmapSource> getNode = (sectionX, sectionZ) -> nodes[sectionX + sectionZ * testSize];
         // set heights
         Consumer<SurfaceTrackerNodesTest.HeightmapBlock> setHeight = block ->
-            getNode.apply(blockToSection(block.x()), blockToSection(block.z())).setBlock(
+            getNode.apply(blockToCube(block.x()), blockToCube(block.z())).setBlock(
                 block.x() & (WIDTH_BLOCKS - 1),
                 block.y() & (SCALE_0_NODE_HEIGHT - 1),
                 block.z() & (WIDTH_BLOCKS - 1),
@@ -126,9 +127,10 @@ public class HeightmapStorageTest {
         r = new Random(0);
         for (int blockX = 0; blockX < testSize * WIDTH_BLOCKS; blockX++) {
             for (int blockZ = 0; blockZ < testSize * WIDTH_BLOCKS; blockZ++) {
-                SurfaceTrackerLeaf loadedLeaf = loadedLeaves[(blockX >> 4) + ((blockZ >> 4) * testSize)];
+                SurfaceTrackerLeaf loadedLeaf = loadedLeaves[blockToCube(blockX) + (blockToCube(blockZ) * testSize)];
                 int height = r.nextInt(SCALE_0_NODE_HEIGHT);
-                assertEquals(32 + height, loadedLeaf.getHeight(blockX & WIDTH_BLOCKS - 1, blockZ & WIDTH_BLOCKS - 1));
+                int actualHeight = loadedLeaf.getHeight(blockX & WIDTH_BLOCKS - 1, blockZ & WIDTH_BLOCKS - 1);
+                assertEquals(32 + height, actualHeight);
             }
         }
 
@@ -144,7 +146,7 @@ public class HeightmapStorageTest {
         // setup
         HeightmapStorage storage = new InterleavedHeightmapStorage(tempDirectory.toFile());
         SurfaceTrackerLeaf leaf = new SurfaceTrackerLeaf(1, null, heightmapType);
-        SurfaceTrackerNodesTest.TestHeightmapSource32 testNode = new SurfaceTrackerNodesTest.TestHeightmapSource32(0, 1, 0);
+        SurfaceTrackerNodesTest.TestHeightmapSource testNode = new SurfaceTrackerNodesTest.TestHeightmapSource(0, 1, 0);
         leaf.loadSource(0, 0, storage, testNode);
 
         // set heights
@@ -180,7 +182,7 @@ public class HeightmapStorageTest {
         // setup
         HeightmapStorage storage = new InterleavedHeightmapStorage(tempDirectory.toFile());
         SurfaceTrackerBranch root = new SurfaceTrackerBranch(SurfaceTrackerNode.MAX_SCALE, 0, null, heightmapType);
-        SurfaceTrackerNodesTest.TestHeightmapSource32 testNode = new SurfaceTrackerNodesTest.TestHeightmapSource32(0, 0, 0);
+        SurfaceTrackerNodesTest.TestHeightmapSource testNode = new SurfaceTrackerNodesTest.TestHeightmapSource(0, 0, 0);
         root.loadSource(0, 0, storage, testNode);
 
         // set heights
