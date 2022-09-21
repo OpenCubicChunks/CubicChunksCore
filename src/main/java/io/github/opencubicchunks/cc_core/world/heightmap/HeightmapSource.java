@@ -6,7 +6,7 @@ import io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.Surf
 
 public interface HeightmapSource {
 
-    default void sectionLoaded(@Nonnull SurfaceTrackerLeaf surfaceTrackerLeaf, int localSectionX, int localSectionZ) {
+    default void leafLoaded(@Nonnull SurfaceTrackerLeaf surfaceTrackerLeaf) {
         throw new IllegalStateException("Should not be reached");
     }
 

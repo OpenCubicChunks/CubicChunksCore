@@ -1,7 +1,5 @@
 package io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree;
 
-import static io.github.opencubicchunks.cc_core.utils.Coords.cubeLocalSection;
-
 import java.util.function.IntPredicate;
 
 import javax.annotation.Nonnull;
@@ -28,7 +26,7 @@ public class SurfaceTrackerLeaf extends SurfaceTrackerNode {
     @Override
     protected int updateHeight(int x, int z, int idx) {
         synchronized(this) {
-            // Node cannot be null here. If it is, the leaf was not updated on node unloading.
+            // Source cannot be null here. If it is, the leaf was not updated on source unloading.
             int maxY = this.source.getHighest(x, z, this.getRawType());
 
             this.heights.set(idx, absToRelY(maxY, this.scaledY, this.scale));
@@ -38,14 +36,14 @@ public class SurfaceTrackerLeaf extends SurfaceTrackerNode {
     }
 
     @Override
-    public synchronized void loadSource(int globalSectionX, int globalSectionZ, HeightmapStorage storage, @Nonnull HeightmapSource newSource) {
+    public synchronized void loadSource(int globalCubeX, int globalCubeZ, HeightmapStorage storage, @Nonnull HeightmapSource newSource) {
         boolean isBeingInitialized = this.source == null;
 
         this.source = newSource;
-        newSource.sectionLoaded(this, cubeLocalSection(globalSectionX), cubeLocalSection(globalSectionZ));
+        newSource.leafLoaded(this);
 
         // Parent might be null for proto-cube leaf nodes
-        // If we are inserting a new node (it's parent is null), the parents must be updated.
+        // If we are inserting a new node (its parent is null), the parents must be updated.
         // The parent can already be set for LevelCubes, their heights are inherited from their ProtoCubes
         // and do not need to be updated
         if (this.parent != null) {
@@ -58,16 +56,16 @@ public class SurfaceTrackerLeaf extends SurfaceTrackerNode {
         }
     }
 
-    @Override public void unload(int globalSectionX, int globalSectionZ, @Nonnull HeightmapStorage storage) {
+    @Override public void unload(int globalCubeX, int globalCubeZ, @Nonnull HeightmapStorage storage) {
         assert this.source == null : "Heightmap leaf being unloaded while holding a source node?!";
 
         this.parent = null;
 
-        this.save(globalSectionX, globalSectionZ, storage);
+        this.save(globalCubeX, globalCubeZ, storage);
     }
 
-    @Override public void save(int globalSectionX, int globalSectionZ, @Nonnull HeightmapStorage storage) {
-        storage.saveNode(globalSectionX, globalSectionZ, this);
+    @Override public void save(int globalCubeX, int globalCubeZ, @Nonnull HeightmapStorage storage) {
+        storage.saveNode(globalCubeX, globalCubeZ, this);
     }
 
 
@@ -75,17 +73,17 @@ public class SurfaceTrackerLeaf extends SurfaceTrackerNode {
      * Called by the node (cube) when it's unloaded. This informs the parent that one of its
      * children are no longer required
      */
-    public void sourceUnloaded(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
+    public void sourceUnloaded(int globalCubeX, int globalCubeZ, HeightmapStorage storage) {
         assert this.source != null;
 
         // On unloading the node, the leaf must have no dirty positions
-        updateDirtyHeights(globalSectionX, globalSectionZ);
+        updateDirtyHeights();
 
         this.source = null;
 
         // Parent can be null for a protocube that hasn't been added to the global heightmap
         if (parent != null) {
-            this.parent.onChildUnloaded(globalSectionX, globalSectionZ, storage);
+            this.parent.onChildUnloaded(globalCubeX, globalCubeZ, storage);
         }
     }
 
@@ -99,8 +97,6 @@ public class SurfaceTrackerLeaf extends SurfaceTrackerNode {
 
     /**
      * Updates the internal heightmap for this SurfaceTracker section, and any parents who are also affected by it
-     *
-     * Should only be called on scale 0 heightmaps
      * @param isOpaquePredicate takes heightmap type
      */
     public void onSetBlock(int cubeLocalX, int y, int cubeLocalZ, IntPredicate isOpaquePredicate) {

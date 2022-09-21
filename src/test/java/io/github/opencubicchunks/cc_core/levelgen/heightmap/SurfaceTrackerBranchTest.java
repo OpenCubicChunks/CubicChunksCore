@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.opencubicchunks.cc_core.levelgen.heightmap.SurfaceTrackerNodesTest.NullHeightmapStorage;
-import io.github.opencubicchunks.cc_core.levelgen.heightmap.SurfaceTrackerNodesTest.TestHeightmapSource32;
+import io.github.opencubicchunks.cc_core.levelgen.heightmap.SurfaceTrackerNodesTest.TestHeightmapSource;
 import io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerBranch;
 import io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerLeaf;
 import io.github.opencubicchunks.cc_core.world.heightmap.surfacetrackertree.SurfaceTrackerNode;
@@ -35,7 +35,7 @@ public class SurfaceTrackerBranchTest {
     public void testLeafInsertionIntoRoot() {
         NullHeightmapStorage storage = new NullHeightmapStorage();
         SurfaceTrackerBranch root = new SurfaceTrackerBranch(SurfaceTrackerNode.MAX_SCALE, 0, null, (byte) 0);
-        root.loadSource(0, 0, storage, new TestHeightmapSource32(0, 0, 0));
+        root.loadSource(0, 0, storage, new TestHeightmapSource(0, 0, 0));
 
         SurfaceTrackerLeaf leaf = root.getLeaf(0);
         assertNotNull(leaf, "Appropriate leaf was null after loading node into root");

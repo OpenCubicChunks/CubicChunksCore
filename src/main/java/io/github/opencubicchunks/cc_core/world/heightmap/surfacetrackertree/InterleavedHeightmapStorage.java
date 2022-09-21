@@ -94,13 +94,13 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
         }
     }
 
-    @Nullable @Override public SurfaceTrackerNode loadNode(int globalSectionX, int globalSectionZ, SurfaceTrackerBranch parent, byte heightmapType, int scale, int scaledY) {
+    @Nullable @Override public SurfaceTrackerNode loadNode(int globalCubeX, int globalCubeZ, SurfaceTrackerBranch parent, byte heightmapType, int scale, int scaledY) {
         if (isClosed) {
             throw new IllegalStateException("Heightmap storage already closed!");
         }
 
-        int regionPosX = globalSectionX >> NODE_POSITION_SHIFT;
-        int regionPosZ = globalSectionZ >> NODE_POSITION_SHIFT;
+        int regionPosX = globalCubeX >> NODE_POSITION_SHIFT;
+        int regionPosZ = globalCubeZ >> NODE_POSITION_SHIFT;
 
         try {
             NodeRegionPosition nodeRegionPosition = new NodeRegionPosition(regionPosX, regionPosZ, scale, scaledY, heightmapType);
@@ -134,7 +134,7 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
                 node = new SurfaceTrackerBranch(scale, scaledY, parent, heightmapType);
             }
 
-            readNode(globalSectionX, globalSectionZ, node, bits);
+            readNode(globalCubeX, globalCubeZ, node, bits);
 
             return node;
         } catch (IOException e) {
@@ -166,9 +166,9 @@ public class InterleavedHeightmapStorage implements HeightmapStorage {
         }
     }
 
-    private void readNode(int globalSectionX, int globalSectionZ, SurfaceTrackerNode node, BitSet data) {
-        int localNodeX = globalSectionX & NODE_POSITION_MASK;
-        int localNodeZ = globalSectionZ & NODE_POSITION_MASK;
+    private void readNode(int globalCubeX, int globalCubeZ, SurfaceTrackerNode node, BitSet data) {
+        int localNodeX = globalCubeX & NODE_POSITION_MASK;
+        int localNodeZ = globalCubeZ & NODE_POSITION_MASK;
 
         int chunkIdx = localNodeX + localNodeZ * REGION_WIDTH_IN_NODES;
 

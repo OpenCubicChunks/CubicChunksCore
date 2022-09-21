@@ -23,8 +23,7 @@ public abstract class SurfaceTrackerNode {
     /** Number of children of the root node */
     public static final int ROOT_NODE_COUNT = 1 << ROOT_NODE_COUNT_BITS;
 
-    // Use width of 16 to match columns.
-    public static final int WIDTH_BLOCKS = 16;
+    public static final int WIDTH_BLOCKS = 32;
     public static final int SCALE_0_NODE_HEIGHT = CubicConstants.DIAMETER_IN_BLOCKS;
     public static final int SCALE_0_NODE_BITS = MathUtil.log2(CubicConstants.DIAMETER_IN_BLOCKS);
 
@@ -106,17 +105,17 @@ public abstract class SurfaceTrackerNode {
      */
     protected abstract int updateHeight(int x, int z, int idx);
 
-    public abstract void loadSource(int globalSectionX, int globalSectionZ, HeightmapStorage storage, HeightmapSource newSource);
+    public abstract void loadSource(int globalCubeX, int globalCubeZ, HeightmapStorage storage, HeightmapSource newSource);
 
     /**
      * Tells a node to unload itself, nulling its parent, and passing itself to the provided storage
      */
-    public abstract void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
+    public abstract void unload(int globalCubeX, int globalCubeZ, HeightmapStorage storage);
 
     /**
      * Tells a node to save itself to the provided storage
      */
-    public abstract void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage);
+    public abstract void save(int globalCubeX, int globalCubeZ, HeightmapStorage storage);
 
     /**
      * Gets the leaf node at the specified Y (delegates to children if required)
@@ -126,13 +125,13 @@ public abstract class SurfaceTrackerNode {
     /**
      * Updates any positions that are dirty (used for unloading section)
      */
-    public void updateDirtyHeights(int localSectionX, int localSectionZ) {
+    public void updateDirtyHeights() {
         if (!isAnyDirty()) {
             return;
         }
 
-        for (int z = localSectionZ * WIDTH_BLOCKS, zMax = z + WIDTH_BLOCKS; z < zMax; z++) {
-            for (int x = localSectionX * WIDTH_BLOCKS, xMax = x + WIDTH_BLOCKS; x < xMax; x++) {
+        for (int z = 0; z < WIDTH_BLOCKS; z++) {
+            for (int x = 0; x < WIDTH_BLOCKS; x++) {
                 int idx = index(x, z);
                 if (isDirty(idx)) {
                     updateHeight(x, z, idx);
@@ -143,7 +142,7 @@ public abstract class SurfaceTrackerNode {
 
     /** Returns if any position in the SurfaceTrackerNode is dirty*/
     public boolean isAnyDirty() {
-        assert dirtyPositions.length == 4;
+        assert dirtyPositions.length == WIDTH_BLOCKS * WIDTH_BLOCKS / Long.SIZE;
 
         long l = 0;
         l |= dirtyPositions[0];
@@ -155,7 +154,7 @@ public abstract class SurfaceTrackerNode {
 
     /** Sets all positions within the SurfaceTrackerNode to clear */
     public void setAllDirty() {
-        assert dirtyPositions.length == 4;
+        assert dirtyPositions.length == WIDTH_BLOCKS * WIDTH_BLOCKS / Long.SIZE;
 
         dirtyPositions[0] = -1;
         dirtyPositions[1] = -1;
@@ -209,7 +208,7 @@ public abstract class SurfaceTrackerNode {
 
 
     @Nullable public SurfaceTrackerBranch getParent() {
-        return parent;
+        return this.parent;
     }
 
     public int getScale() {
@@ -217,11 +216,11 @@ public abstract class SurfaceTrackerNode {
     }
 
     public int getScaledY() {
-        return scaledY;
+        return this.scaledY;
     }
 
     public byte getRawType() {
-        return (byte) (heightmapTypeAndRequiresSave >> 1);
+        return (byte) (this.heightmapTypeAndRequiresSave >> 1);
     }
 
     private void setHeightmapType(byte type) {
@@ -229,7 +228,7 @@ public abstract class SurfaceTrackerNode {
     }
 
     public boolean requiresSave() {
-        return (heightmapTypeAndRequiresSave & 0b0000_0001) != 0;
+        return (this.heightmapTypeAndRequiresSave & 0b0000_0001) != 0;
     }
 
     private void setRequiresSave() {
@@ -242,7 +241,7 @@ public abstract class SurfaceTrackerNode {
 
     /** Get position x/z index within a column, from global/local pos */
     protected static int index(int x, int z) {
-        return (z & 0xF) * WIDTH_BLOCKS + (x & 0xF);
+        return (z & 0x1F) * WIDTH_BLOCKS + (x & 0x1F);
     }
 
     @VisibleForTesting

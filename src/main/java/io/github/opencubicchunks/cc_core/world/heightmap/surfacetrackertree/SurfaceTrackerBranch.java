@@ -61,14 +61,14 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
         }
     }
 
-    @Override public void loadSource(int globalSectionX, int globalSectionZ, HeightmapStorage storage, HeightmapSource newSource) {
+    @Override public void loadSource(int globalCubeX, int globalCubeZ, HeightmapStorage storage, HeightmapSource newSource) {
         int newScale = scale - 1;
 
         // Attempt to load all children from storage
         for (int i = 0; i < this.children.length; i++) {
             if (children[i] == null) {
                 int newScaledY = indexToScaledY(i, scale, scaledY);
-                children[i] = storage.loadNode(globalSectionX, globalSectionZ, this, this.getRawType(), newScale, newScaledY);
+                children[i] = storage.loadNode(globalCubeX, globalCubeZ, this, this.getRawType(), newScale, newScaledY);
             }
         }
 
@@ -83,21 +83,21 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
                 children[idx] = new SurfaceTrackerBranch(newScale, newScaledY, this, this.getRawType());
             }
         }
-        children[idx].loadSource(globalSectionX, globalSectionZ, storage, newSource);
+        children[idx].loadSource(globalCubeX, globalCubeZ, storage, newSource);
     }
 
-    @Override public void unload(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
+    @Override public void unload(int globalCubeX, int globalCubeZ, HeightmapStorage storage) {
         for (SurfaceTrackerNode child : this.children) {
             assert child == null : "Heightmap branch being unloaded while holding a child?!";
         }
 
         this.parent = null;
 
-        this.save(globalSectionX, globalSectionZ, storage);
+        this.save(globalCubeX, globalCubeZ, storage);
     }
 
-    @Override public void save(int globalSectionX, int globalSectionZ, HeightmapStorage storage) {
-        storage.saveNode(globalSectionX, globalSectionZ, this);
+    @Override public void save(int globalCubeX, int globalCubeZ, HeightmapStorage storage) {
+        storage.saveNode(globalCubeX, globalCubeZ, this);
     }
 
     @Nullable public SurfaceTrackerLeaf getLeaf(int y) {
@@ -129,7 +129,7 @@ public class SurfaceTrackerBranch extends SurfaceTrackerNode {
         assert requiredChildren >= 0 : "Less than 0 required children?!";
 
         // Before unloading a child, we (the parent) must have no dirty positions
-        updateDirtyHeights(globalSectionX, globalSectionZ);
+        updateDirtyHeights();
 
         if (requiredChildren == 0) {
             SurfaceTrackerNode[] surfaceTrackerNodes = this.children;
