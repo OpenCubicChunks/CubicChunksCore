@@ -57,6 +57,7 @@ configurations {
     debugRuntime {
         extendsFrom(debugCompile)
     }
+    testCompileClasspath.extendsFrom(compileClasspath)
 }
 
 repositories {
@@ -83,15 +84,15 @@ repositories {
 }
 
 dependencies {
-    api 'com.github.OpenCubicChunks:javaheaders-api:c9039d4ff8'
+    compileOnly 'com.github.OpenCubicChunks:javaheaders-api:c9039d4ff8'
 
-    api group: 'com.google.guava', name: 'guava', version: '21.0'
-    api group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
-    api group: 'io.netty', name: 'netty-all', version: '4.1.77.Final'
-    api group: 'it.unimi.dsi', name: 'fastutil', version: '8.2.3'
+    compileOnly group: 'com.google.guava', name: 'guava', version: '21.0'
+    compileOnly group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
+    compileOnly group: 'io.netty', name: 'netty-all', version: '4.1.77.Final'
+    compileOnly group: 'it.unimi.dsi', name: 'fastutil', version: '8.2.3'
 
-    api 'com.google.code.findbugs:jsr305:3.0.2'
-    api 'org.jetbrains:annotations:20.1.0'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly 'org.jetbrains:annotations:20.1.0'
 
     // testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
