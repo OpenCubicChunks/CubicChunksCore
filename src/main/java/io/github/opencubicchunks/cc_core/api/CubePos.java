@@ -7,6 +7,7 @@ import static io.github.opencubicchunks.cc_core.utils.Coords.sectionToCube;
 import java.util.stream.Stream;
 
 import com.google.common.base.MoreObjects;
+import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCChunkPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCEntity;
@@ -14,6 +15,7 @@ import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCVec3i;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 
+@UsedFromASM
 public class CubePos extends MCVec3i {
     private CubePos(int x, int y, int z) {
         super(x, y, z);
@@ -33,6 +35,7 @@ public class CubePos extends MCVec3i {
         return new CubePos(x, y, z);
     }
 
+    @UsedFromASM
     public long asLong() {
         long i = 0L;
         i |= ((long) this.getX() & (1 << 21) - 1) << 43;
@@ -41,6 +44,7 @@ public class CubePos extends MCVec3i {
         return i;
     }
 
+    @UsedFromASM
     public static long asLong(int x, int y, int z) {
         long i = 0L;
         i |= ((long) x & (1 << 21) - 1) << 43;
@@ -49,6 +53,7 @@ public class CubePos extends MCVec3i {
         return i;
     }
 
+    @UsedFromASM
     public static long asLong(MCBlockPos pos) {
         return asLong(Coords.blockToCube(pos.getX()), Coords.blockToCube(pos.getY()), Coords.blockToCube(pos.getZ()));
     }
