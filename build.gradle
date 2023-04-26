@@ -42,6 +42,7 @@ task generatePackageInfo {
     setGroup('filegen')
     doFirst {
         GeneratePackageInfo.generateFiles(sourceSets.main)
+        GeneratePackageInfo.generateFiles(sourceSets.test)
     }
 }
 
