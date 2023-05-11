@@ -219,14 +219,10 @@ public class Int3HashSet implements AutoCloseable {
             int bucketY = PlatformDependent.getInt(bucket + BUCKET_KEY_OFFSET + KEY_Y_OFFSET);
             int bucketZ = PlatformDependent.getInt(bucket + BUCKET_KEY_OFFSET + KEY_Z_OFFSET);
             long value = PlatformDependent.getLong(bucket + BUCKET_VALUE_OFFSET);
-            if (value == 0L) { //the bucket is unset, so there's no reason to look at it
-                continue;
-            }
 
-            for (int i = 0; i <= BUCKET_SIZE; i++) { //check each flag in the bucket value to see if it's set
-                if ((value & (1L << i)) == 0L) { //the flag isn't set
-                    continue;
-                }
+            while (value != 0L) { //iterate over each set bit in value
+                int i = Long.numberOfTrailingZeros(value); //find the index of the next set bit
+                value &= ~(1L << i); //clear the found bit so we can advance to the next one on the next iteration
 
                 int dx = i >> (BUCKET_AXIS_BITS * 2);
                 int dy = (i >> BUCKET_AXIS_BITS) & BUCKET_AXIS_MASK;
