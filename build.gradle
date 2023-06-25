@@ -85,7 +85,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.github.OpenCubicChunks:javaheaders-api:c9039d4ff8'
+    compileOnly 'com.github.OpenCubicChunks:javaheaders-api:3e193a8'
 
     compileOnly group: 'com.google.guava', name: 'guava', version: '21.0'
     compileOnly group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
