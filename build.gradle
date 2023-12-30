@@ -49,7 +49,7 @@ task generatePackageInfo {
 jar {
     manifest {
         attributes(
-                "FMLModType": "GameLibrary"
+                "FMLModType": "GAMELIBRARY"
         )
     }
 }
