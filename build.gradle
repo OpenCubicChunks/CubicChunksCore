@@ -46,6 +46,14 @@ task generatePackageInfo {
     }
 }
 
+jar {
+    manifest {
+        attributes(
+                "FMLModType": "GameLibrary"
+        )
+    }
+}
+
 task genAll {
     setGroup('filegen')
     dependsOn(generatePackageInfo)
