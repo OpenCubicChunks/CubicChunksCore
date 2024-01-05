@@ -301,6 +301,80 @@ public class Coords {
         return indexToZ(idx << 4);
     }
 
+
+    /**
+     * @param blockXVal X position
+     * @param blockZVal Z position
+     *
+     * @return LevelChunk index inside the LevelCube the position specified falls within
+     *     <p>
+     *     This uses the internal methods such as {@link Coords#blockToColumnIndex16} to allow the JVM to optimise out the variable bit shifts that would occur otherwise
+     */
+    public static int blockToColumnIndex(int blockXVal, int blockZVal) {
+        if (CubicConstants.DIAMETER_IN_SECTIONS == 1) {
+            return blockToColumnIndex16(blockXVal, blockZVal);
+        } else if (CubicConstants.DIAMETER_IN_SECTIONS == 2) {
+            return blockToColumnIndex32(blockXVal, blockZVal);
+        } else if (CubicConstants.DIAMETER_IN_SECTIONS == 4) {
+            return blockToColumnIndex64(blockXVal, blockZVal);
+        } else if (CubicConstants.DIAMETER_IN_SECTIONS == 8) {
+            return blockToColumnIndex128(blockXVal, blockZVal);
+        }
+        throw new UnsupportedOperationException("Unsupported cube size " + CubicConstants.DIAMETER_IN_SECTIONS);
+    }
+
+    /** See {@link Coords#blockToColumnIndex(int, int)} */
+    private static int blockToColumnIndex16(int blockXVal, int blockZVal) {
+        return 0;
+    }
+
+    /** See {@link Coords#blockToColumnIndex(int, int)} */
+    private static int blockToColumnIndex32(int blockXVal, int blockZVal) {
+        //1 bit
+        final int mask = POS_TO_INDEX_MASK;
+        return (blockXVal & mask) >> 4 | (blockZVal & mask) >> 3;
+    }
+
+    /** See {@link Coords#blockToColumnIndex(int, int)} */
+    private static int blockToColumnIndex64(int blockXVal, int blockZVal) {
+        //2 bit
+        //1011101010001, 1010101011100, 1101011101010
+        final int mask = POS_TO_INDEX_MASK;
+        return (blockXVal & mask) >> 4 | (blockZVal & mask) >> 2;
+    }
+
+    /** See {@link Coords#blockToColumnIndex(int, int)} */
+    private static int blockToColumnIndex128(int blockXVal, int blockZVal) {
+        //3 bit
+        //1011101010001, 1010101011100, 1101011101010
+        final int mask = POS_TO_INDEX_MASK;
+        return (blockXVal & mask) >> 4 | (blockZVal & mask) >> 1;
+    }
+
+    public static int columnToIndex(int sectionX, int sectionZ) {
+        return blockToColumnIndex(sectionX << 4, sectionZ << 4);
+    }
+
+    /**
+     * @param idx Index of LevelChunkSection within its LevelCube
+     *
+     * @return The X offset (as a SectionPos) from its {@link CubePos} (as a SectionPos)
+     */
+    public static int indexToColumnX(int idx) {
+        return idx >> INDEX_TO_N_X & INDEX_TO_POS_MASK;
+    }
+
+    /**
+     * @param idx Index of the LevelChunkSection within its LevelCube
+     *
+     * @return The Z offset (as a SectionPos) from its {@link CubePos} (as a SectionPos)
+     */
+    public static int indexToColumnZ(int idx) {
+        // use the mask for Y instead of Z since Z is the second coordinate here
+        // TODO yeah this is bad, we should fix it later
+        return idx >> INDEX_TO_N_Y & INDEX_TO_POS_MASK;
+    }
+
     /**
      * @param cubeVal A single dimension of the {@link CubePos}
      * @param sectionOffset The SectionPos offset from the {@link CubePos} as a SectionPos. Suggest you use {@link Coords#indexToX}, {@link Coords#indexToY}, {@link
