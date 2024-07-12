@@ -90,6 +90,25 @@ public class CloPosTest {
         assertEquals(neighbors1, neighbors2);
     }
 
+    private void chunkPosCubePosPackingEquivalence(int x, int y, int z) {
+        var cubeLong = CloPos.asLong(x, y, z);
+        var expectedCubeLong = CubePos.asLong(x, y, z);
+
+        assertEquals(expectedCubeLong, cubeLong);
+        assertEquals(CubePos.extractX(cubeLong), CloPos.extractX(cubeLong));
+        assertEquals(CubePos.extractY(cubeLong), CloPos.extractY(cubeLong));
+        assertEquals(CubePos.extractZ(cubeLong), CloPos.extractZ(cubeLong));
+        assertEquals(CubePos.from(cubeLong), CloPos.fromLong(cubeLong).cubePos());
+
+        var chunkLong = CloPos.asLong(x, z);
+        var expectedChunkLong = MCChunkPos.asLong(x, z);
+
+        assertEquals(expectedChunkLong, chunkLong);
+        assertEquals(MCChunkPos.getX(chunkLong), CloPos.extractX(chunkLong));
+        assertEquals(MCChunkPos.getZ(chunkLong), CloPos.extractZ(chunkLong));
+        assertEquals(new MCChunkPos(chunkLong), CloPos.fromLong(chunkLong).chunkPos());
+    }
+
     // offsetX/Z should be between 0 and CubicConstants.DIAMETER_IN_SECTIONS
     private void correspondingPositions(int x, int y, int z, int offsetX, int offsetY, int offsetZ) {
         // Calling methods with cube pos
@@ -154,6 +173,17 @@ public class CloPosTest {
         }
     }
 
+    @Test public void testChunkPosCubePosPackingEquivalence() {
+        var random = new Random(7890);
+        for (int i = 0; i < 1000; i++) {
+            int x = random.nextInt(10000) - 5000;
+            int y = random.nextInt(10000) - 5000;
+            int z = random.nextInt(10000) - 5000;
+
+            chunkPosCubePosPackingEquivalence(x, y, z);
+        }
+    }
+
     @Test public void testCorrespondingPositions() {
         var random = new Random(7780);
         for (int i = 0; i < 1000; i++) {
@@ -195,6 +225,7 @@ public class CloPosTest {
 
             constructionAndBasicMethods(x, y, z);
             packedUnpackedParity(x, y, z);
+            chunkPosCubePosPackingEquivalence(x, y, z);
             correspondingPositions(x, y, z, offsetSectionX, offsetY, offsetSectionZ);
             longGetSet(x, y, z, offsetX, offsetY, offsetZ);
         }

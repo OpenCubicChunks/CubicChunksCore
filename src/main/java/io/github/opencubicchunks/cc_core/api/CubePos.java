@@ -15,8 +15,24 @@ import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCVec3i;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 
+/**
+ * A representation of the position of a Cube.
+ * <br><br>
+ * When packed as a long, cube positions are packed with 21 bits per axis. The parity of the top two bits of the long is used to distinguish between chunks and cubes internally
+ * (if bit 0 XOR bit 1, it is a cube, otherwise it is a chunk). Thus, packed cube positions will always begin with 01 or 10.
+ * <br>
+ * Also note that for cubes the top two bits (the parity bit, and the top bit of the Z coordinate) are inverted, as otherwise {@link Long#MAX_VALUE} would be a valid position (-1, -1, -1).
+ * <br>
+ * Invalid CubePos long:          <br> <code> 0b01111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 </code> <br>
+ * Positive Z CubePos long:  <br> <code> 0b01ZZZZZZ ZZZZZZZZ ZZZZZZYY YYYYYYYY YYYYYYYY YYYXXXXX XXXXXXXX XXXXXXXX </code> <br>
+ * Negative Z CubePos long:  <br> <code> 0b10ZZZZZZ ZZZZZZZZ ZZZZZZYY YYYYYYYY YYYYYYYY YYYXXXXX XXXXXXXX XXXXXXXX </code>
+ * <br>
+ * @see io.github.opencubicchunks.cc_core.world.level.CloPos
+ */
 @UsedFromASM
 public class CubePos extends MCVec3i {
+    private static final long TOP_TWO_BITS_MASK = (0b11L << 62);
+
     private CubePos(int x, int y, int z) {
         super(x, y, z);
     }
@@ -38,18 +54,26 @@ public class CubePos extends MCVec3i {
     @UsedFromASM
     public long asLong() {
         long i = 0L;
-        i |= ((long) this.getX() & (1 << 21) - 1) << 43;
-        i |= ((long) this.getY() & (1 << 22) - 1);
-        i |= ((long) this.getZ() & (1 << 21) - 1) << 22;
+        i |= ((long) this.getX() & (1 << 21) - 1);
+        i |= ((long) this.getY() & (1 << 21) - 1) << 21;
+        i |= ((long) this.getZ() & (1 << 21) - 1) << 42;
+        // If 2nd bit isn't set, set 1st bit, since cubes are marked by starting with 0b01 or 0b10
+        if (i < (1L << 62)) i |= (1L << 63);
+        // invert the top two bits for storage (as explained in the class javadoc)
+        i ^= TOP_TWO_BITS_MASK;
         return i;
     }
 
     @UsedFromASM
     public static long asLong(int x, int y, int z) {
         long i = 0L;
-        i |= ((long) x & (1 << 21) - 1) << 43;
-        i |= ((long) y & (1 << 22) - 1);
-        i |= ((long) z & (1 << 21) - 1) << 22;
+        i |= ((long) x & (1 << 21) - 1);
+        i |= ((long) y & (1 << 21) - 1) << 21;
+        i |= ((long) z & (1 << 21) - 1) << 42;
+        // If 2nd bit isn't set, set 1st bit, since cubes are marked by starting with 0b01 or 0b10
+        if (i < (1L << 62)) i |= (1L << 63);
+        // invert the top two bits for storage (as explained in the class javadoc)
+        i ^= TOP_TWO_BITS_MASK;
         return i;
     }
 
@@ -114,17 +138,18 @@ public class CubePos extends MCVec3i {
             blockToCube(Math.floor(z)));
     }
 
-
     public static int extractX(long packed) {
-        return (int) (packed >> 43);
+        return (int) (packed << 43 >> 43);
     }
 
     public static int extractY(long packed) {
-        return (int) (packed << 42 >> 42);
+        return (int) (packed << 22 >> 43);
     }
 
     public static int extractZ(long packed) {
-        return (int) (packed << 21 >> 43);
+        // re-invert the top two bits, since they were inverted for storage
+        packed ^= TOP_TWO_BITS_MASK;
+        return (int) (packed << 1 >> 43);
     }
 
     public int minCubeX() {

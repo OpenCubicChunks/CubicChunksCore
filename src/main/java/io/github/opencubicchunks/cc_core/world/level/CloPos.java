@@ -15,8 +15,8 @@ import io.github.opencubicchunks.cc_core.utils.Coords;
 /**
  * A representation of the position of either a Chunk or a Cube.
  * <br><br>
- * When packed as a long, chunk positions are encoded the same as {@link MCChunkPos#toLong}; cube positions are packed with 21 bits per axis. The parity of the top two bits of the long is
- * used to distinguish between chunks and cubes (if bit 0 XOR bit 1, it is a cube, otherwise it is a chunk).
+ * When packed as a long, chunk positions are encoded the same as {@link MCChunkPos#toLong}; cube positions are encoded the same as {@link CubePos#asLong}: packed with 21 bits per axis.
+ * The parity of the top two bits of the long is used to distinguish between chunks and cubes (if bit 0 XOR bit 1, it is a cube, otherwise it is a chunk).
  * <br>
  * Also note that for cubes the top two bits (the parity bit, and the top bit of the Z coordinate) are inverted, as otherwise {@link Long#MAX_VALUE} would be a valid position (-1, -1, -1).
  * <br>
@@ -25,6 +25,8 @@ import io.github.opencubicchunks.cc_core.utils.Coords;
  * Negative Z cube CloPos long:  <br> <code> 0b10ZZZZZZ ZZZZZZZZ ZZZZZZYY YYYYYYYY YYYYYYYY YYYXXXXX XXXXXXXX XXXXXXXX </code> <br>
  * Positive Z chunk CloPos long: <br> <code> 0b00ZZZZZZ ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX </code> <br>
  * Negative Z chunk CloPos long: <br> <code> 0b11ZZZZZZ ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX </code>
+ * @see CubePos
+ * @see MCChunkPos
  */
 public class CloPos {
     /**

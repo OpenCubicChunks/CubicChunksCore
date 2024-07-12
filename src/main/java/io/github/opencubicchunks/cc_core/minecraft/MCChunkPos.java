@@ -9,6 +9,10 @@ public class MCChunkPos {
         throw new IllegalStateException("Per-version doesn't overwrite method");
     }
 
+    public MCChunkPos(long packedPos) {
+        throw new IllegalStateException("Per-version doesn't overwrite method");
+    }
+
     public native long toLong();
 
     public native static long asLong(int x, int z);
