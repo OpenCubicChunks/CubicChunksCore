@@ -94,11 +94,11 @@ public class CloPosTest {
     private void correspondingPositions(int x, int y, int z, int offsetX, int offsetY, int offsetZ) {
         // Calling methods with cube pos
         var cube = CloPos.cube(x, y, z);
-        var verticallyOffsetCube = CloPos.cube(x, y+offsetY, z);
+        var verticallyOffsetCube = CloPos.cube(x, y + offsetY, z);
         assertEquals(cube, cube.correspondingCubeCloPos(y));
         assertEquals(cube.cubePos(), cube.correspondingCubePos(y));
-        assertEquals(verticallyOffsetCube, cube.correspondingCubeCloPos(y+offsetY));
-        assertEquals(verticallyOffsetCube.cubePos(), cube.correspondingCubePos(y+offsetY));
+        assertEquals(verticallyOffsetCube, cube.correspondingCubeCloPos(y + offsetY));
+        assertEquals(verticallyOffsetCube.cubePos(), cube.correspondingCubePos(y + offsetY));
         var expectedChunkPosZeroOffset = CloPos.chunk(Coords.cubeToSection(x, 0), Coords.cubeToSection(z, 0));
         assertEquals(expectedChunkPosZeroOffset, cube.correspondingChunkCloPos());
         assertEquals(expectedChunkPosZeroOffset.chunkPos(), cube.correspondingChunkPos());
@@ -119,25 +119,25 @@ public class CloPosTest {
     private void longGetSet(int x, int y, int z, int offsetX, int offsetY, int offsetZ) {
         // Calling methods with cube pos
         var cube = CloPos.asLong(x, y, z);
-        assertEquals(x+offsetX, CloPos.extractX(CloPos.setX(cube, x+offsetX)));
-        assertEquals(y+offsetY, CloPos.extractY(CloPos.setY(cube, y+offsetY)));
-        assertEquals(z+offsetZ, CloPos.extractZ(CloPos.setZ(cube, z+offsetZ)));
-        assertEquals(CloPos.asLong(x+offsetX, y+offsetY, z+offsetZ), CloPos.setZ(CloPos.setY(CloPos.setX(cube, x+offsetX), y+offsetY), z+offsetZ));
+        assertEquals(x + offsetX, CloPos.extractX(CloPos.setX(cube, x + offsetX)));
+        assertEquals(y + offsetY, CloPos.extractY(CloPos.setY(cube, y + offsetY)));
+        assertEquals(z + offsetZ, CloPos.extractZ(CloPos.setZ(cube, z + offsetZ)));
+        assertEquals(CloPos.asLong(x + offsetX, y + offsetY, z + offsetZ), CloPos.setZ(CloPos.setY(CloPos.setX(cube, x + offsetX), y + offsetY), z + offsetZ));
         // Calling methods with chunk pos
         var chunk = CloPos.asLong(x, z);
-        assertEquals(x+offsetX, CloPos.extractX(CloPos.setX(chunk, x+offsetX)));
-        assertThrows(IllegalArgumentException.class, () -> CloPos.setY(chunk, y+offsetY));
+        assertEquals(x + offsetX, CloPos.extractX(CloPos.setX(chunk, x + offsetX)));
+        assertThrows(IllegalArgumentException.class, () -> CloPos.setY(chunk, y + offsetY));
         assertThrows(IllegalArgumentException.class, () -> CloPos.extractY(chunk));
-        assertEquals(z+offsetZ, CloPos.extractZ(CloPos.setZ(chunk, z+offsetZ)));
-        assertEquals(CloPos.asLong(x+offsetX, z+offsetZ), CloPos.setZ(CloPos.setX(chunk, x+offsetX), z+offsetZ));
+        assertEquals(z + offsetZ, CloPos.extractZ(CloPos.setZ(chunk, z + offsetZ)));
+        assertEquals(CloPos.asLong(x + offsetX, z + offsetZ), CloPos.setZ(CloPos.setX(chunk, x + offsetX), z + offsetZ));
     }
 
     @Test public void testConstructionAndBasicMethods() {
         var random = new Random(7777);
         for (int i = 0; i < 1000; i++) {
-            int x = random.nextInt(10000)-5000;
-            int y = random.nextInt(10000)-5000;
-            int z = random.nextInt(10000)-5000;
+            int x = random.nextInt(10000) - 5000;
+            int y = random.nextInt(10000) - 5000;
+            int z = random.nextInt(10000) - 5000;
 
             constructionAndBasicMethods(x, y, z);
         }
@@ -202,7 +202,7 @@ public class CloPosTest {
 
     @Test public void forEachNeighborCounts() {
         var pos = CloPos.cube(3, 4, 5);
-        var cubesCols = new int[] { 0,  0 };
+        var cubesCols = new int[] { 0, 0 };
         pos.forEachNeighbor(p -> cubesCols[p.isCube() ? 0 : 1]++);
         assertEquals(26, cubesCols[0]);
         assertEquals(CubicConstants.CHUNK_COUNT, cubesCols[1]);
@@ -218,15 +218,15 @@ public class CloPosTest {
         if (pos.isCube()) {
             assertTrue(Math.max(
                 Math.max(
-                    Math.abs(pos.getX()*CubicConstants.DIAMETER_IN_BLOCKS),
-                    Math.abs(pos.getY()*CubicConstants.DIAMETER_IN_BLOCKS)
+                    Math.abs(pos.getX() * CubicConstants.DIAMETER_IN_BLOCKS),
+                    Math.abs(pos.getY() * CubicConstants.DIAMETER_IN_BLOCKS)
                 ),
-                Math.abs(pos.getZ()*CubicConstants.DIAMETER_IN_BLOCKS)
+                Math.abs(pos.getZ() * CubicConstants.DIAMETER_IN_BLOCKS)
             ) > maxValidDistance, "Long.MAX_VALUE should represent an out-of-bounds CloPos, since it is used to represent invalid CloPoses, but it represents " + pos);
         } else {
             assertTrue(Math.max(
-                Math.abs(pos.getX())*16,
-                Math.abs(pos.getZ())*16
+                Math.abs(pos.getX()) * 16,
+                Math.abs(pos.getZ()) * 16
             ) > maxValidDistance, "Long.MAX_VALUE should represent an out-of-bounds CloPos, since it is used to represent invalid CloPoses, but it represents " + pos);
         }
     }

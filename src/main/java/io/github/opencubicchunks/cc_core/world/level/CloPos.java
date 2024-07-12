@@ -1,5 +1,9 @@
 package io.github.opencubicchunks.cc_core.world.level;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
+
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
@@ -7,9 +11,6 @@ import io.github.opencubicchunks.cc_core.minecraft.MCBlockPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCChunkPos;
 import io.github.opencubicchunks.cc_core.minecraft.MCSectionPos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 
 /**
  * A representation of the position of either a Chunk or a Cube.
@@ -26,13 +27,15 @@ import java.util.function.LongConsumer;
  * Negative Z chunk CloPos long: <br> <code> 0b11ZZZZZZ ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX </code>
  */
 public class CloPos {
-    private static final int CLO_Y_COLUMN_INDICATOR = Integer.MAX_VALUE;
-
-    private static final long TOP_TWO_BITS_MASK = (0b11L << 62);
     /**
      * long representing an invalid CloPos. This is the same value as {@link MCChunkPos#INVALID_CHUNK_POS}.
      */
     public static final long INVALID_CLO_POS = Long.MAX_VALUE;
+
+    private static final int CLO_Y_COLUMN_INDICATOR = Integer.MAX_VALUE;
+
+    private static final long TOP_TWO_BITS_MASK = (0b11L << 62);
+
     private final int x, y, z;
 
     private CloPos(CubePos cubePos) {
@@ -63,9 +66,24 @@ public class CloPos {
         return new CloPos(x, y, z);
     }
 
+    public static CloPos cube(CubePos cubePos) {
+        return new CloPos(cubePos);
+    }
+
+    public static CloPos cube(MCBlockPos pos) {
+        return cube(
+            Coords.blockToCube(pos.getX()),
+            Coords.blockToCube(pos.getY()),
+            Coords.blockToCube(pos.getZ())
+        );
+    }
 
     public static CloPos chunk(int x, int z) {
         return new CloPos(x, CLO_Y_COLUMN_INDICATOR, z);
+    }
+
+    public static CloPos chunk(MCChunkPos pos) {
+        return new CloPos(pos);
     }
 
     /**
@@ -79,28 +97,20 @@ public class CloPos {
         );
     }
 
-    public static CloPos cube(CubePos cubePos) {
-        return new CloPos(cubePos);
-    }
-
-    public static CloPos chunk(MCChunkPos pos) {
-        return new CloPos(pos);
-    }
-
-    public static CloPos cube(MCBlockPos pos) {
-        return cube(
-            Coords.blockToCube(pos.getX()),
-            Coords.blockToCube(pos.getY()),
-            Coords.blockToCube(pos.getZ())
-        );
-    }
-
     public boolean isCube() {
         return this.y != CLO_Y_COLUMN_INDICATOR;
     }
 
+    public static boolean isCube(long cloPos) {
+        return (((cloPos >> 1) ^ cloPos) & (1L << 62)) != 0;
+    }
+
     public boolean isChunk() {
         return this.y == CLO_Y_COLUMN_INDICATOR;
+    }
+
+    public static boolean isChunk(long cloPos) {
+        return (((cloPos >> 1) ^ cloPos) & (1L << 62)) == 0;
     }
 
     public int getX() {
@@ -118,14 +128,6 @@ public class CloPos {
         return z;
     }
 
-    public static boolean isCube(long cloPos) {
-        return (((cloPos >> 1) ^ cloPos) & (1L<<62)) != 0;
-    }
-
-    public static boolean isChunk(long cloPos) {
-        return (((cloPos >> 1) ^ cloPos) & (1L<<62)) == 0;
-    }
-
     public static CloPos fromLong(long cloPos) {
         if (CloPos.isCube(cloPos)) {
             int x = extractCubeX(cloPos);
@@ -136,20 +138,20 @@ public class CloPos {
         return CloPos.chunk(MCChunkPos.getX(cloPos), MCChunkPos.getZ(cloPos));
     }
 
+    /**
+     * Exists for DASM transforms for ChunkPos->CloPos
+     */
+    @UsedFromASM
+    public long toLong() {
+        return asLong();
+    }
+
     public long asLong() {
         if (isCube()) {
             return CloPos.asLong(x, y, z);
         } else {
             return CloPos.asLong(x, z);
         }
-    }
-
-    /**
-     * Exists for DASM transforms for MCChunkPos->CloPos
-     */
-    @UsedFromASM
-    public long toLong() {
-        return asLong();
     }
 
     public static long asLong(int x, int y, int z) {
@@ -243,19 +245,19 @@ public class CloPos {
         return new MCChunkPos(this.x, this.z);
     }
 
-    public CloPos correspondingCubeCloPos(int y) {
+    public CloPos correspondingCubeCloPos(int cubeY) {
         if (isCube()) {
-            return CloPos.cube(this.x, y, this.z);
+            return CloPos.cube(this.x, cubeY, this.z);
         } else {
-            return CloPos.cube(Coords.sectionToCube(this.x), y, Coords.sectionToCube(this.z));
+            return CloPos.cube(Coords.sectionToCube(this.x), cubeY, Coords.sectionToCube(this.z));
         }
     }
 
-    public CubePos correspondingCubePos(int y) {
+    public CubePos correspondingCubePos(int cubeY) {
         if (isCube()) {
-            return CubePos.of(this.x, y, this.z);
+            return CubePos.of(this.x, cubeY, this.z);
         } else {
-            return CubePos.of(Coords.sectionToCube(this.x), y, Coords.sectionToCube(this.z));
+            return CubePos.of(Coords.sectionToCube(this.x), cubeY, Coords.sectionToCube(this.z));
         }
     }
 
@@ -291,8 +293,9 @@ public class CloPos {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     for (int dy = -1; dy <= 1; dy++) {
-                        if (dx != 0 || dy != 0 || dz != 0)
+                        if (dx != 0 || dy != 0 || dz != 0) {
                             consumer.accept(CloPos.cube(this.x + dx, this.y + dy, this.z + dz));
+                        }
                     }
                 }
             }
@@ -304,8 +307,9 @@ public class CloPos {
         } else {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
-                    if (dx != 0 || dz != 0)
+                    if (dx != 0 || dz != 0) {
                         consumer.accept(CloPos.chunk(this.x + dx, this.z + dz));
+                    }
                 }
             }
         }
@@ -321,8 +325,9 @@ public class CloPos {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     for (int dy = -1; dy <= 1; dy++) {
-                        if (dx != 0 || dy != 0 || dz != 0)
+                        if (dx != 0 || dy != 0 || dz != 0) {
                             consumer.accept(CloPos.asLong(x + dx, y + dy, z + dz));
+                        }
                     }
                 }
             }
@@ -336,8 +341,9 @@ public class CloPos {
             int z = MCChunkPos.getZ(packed);
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
-                    if (dx != 0 || dz != 0)
+                    if (dx != 0 || dz != 0) {
                         consumer.accept(CloPos.asLong(x + dx, z + dz));
+                    }
                 }
             }
         }

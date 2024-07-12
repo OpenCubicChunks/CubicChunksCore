@@ -9,6 +9,8 @@
     <suppress checks="InnerAssignment" files="Int3HashSet.java"/>
     <!-- TODO: These probably need refactoring -->
     <suppress checks="CyclomaticComplexity" files="SurfaceTrackerNodesTest.java|HeightmapStorageTest.java"/>
+    <!-- nested loops for iterating over cubes and chunks -->
+    <suppress checks="CyclomaticComplexity" files="CloPos.java"/>
     <suppress checks="DeclarationOrder" files="MixinNaturalSpawner.java|Int3HashSet.java"/>
     <suppress checks="HiddenField" files="Int3HashSet.java"/>
     <suppress checks="NoFinalizer" files="Int3HashSet.java"/>
