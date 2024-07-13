@@ -150,13 +150,13 @@ public class CloPos {
 
     public long asLong() {
         if (isCube()) {
-            return CloPos.asLong(x, y, z);
+            return CloPos.cubeAsLong(x, y, z);
         } else {
-            return CloPos.asLong(x, z);
+            return CloPos.chunkAsLong(x, z);
         }
     }
 
-    public static long asLong(int x, int y, int z) {
+    public static long cubeAsLong(int x, int y, int z) {
         long i = 0L;
         i |= ((long) x & (1 << 21) - 1);
         i |= ((long) y & (1 << 21) - 1) << 21;
@@ -168,7 +168,7 @@ public class CloPos {
         return i;
     }
 
-    public static long asLong(int x, int z) {
+    public static long chunkAsLong(int x, int z) {
         return MCChunkPos.asLong(x, z);
     }
 
@@ -328,14 +328,14 @@ public class CloPos {
                 for (int dz = -1; dz <= 1; dz++) {
                     for (int dy = -1; dy <= 1; dy++) {
                         if (dx != 0 || dy != 0 || dz != 0) {
-                            consumer.accept(CloPos.asLong(x + dx, y + dy, z + dz));
+                            consumer.accept(CloPos.cubeAsLong(x + dx, y + dy, z + dz));
                         }
                     }
                 }
             }
             for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                 for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
-                    consumer.accept(CloPos.asLong(Coords.cubeToSection(x, dx), Coords.cubeToSection(z, dz)));
+                    consumer.accept(CloPos.chunkAsLong(Coords.cubeToSection(x, dx), Coords.cubeToSection(z, dz)));
                 }
             }
         } else {
@@ -344,7 +344,7 @@ public class CloPos {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     if (dx != 0 || dz != 0) {
-                        consumer.accept(CloPos.asLong(x + dx, z + dz));
+                        consumer.accept(CloPos.chunkAsLong(x + dx, z + dz));
                     }
                 }
             }

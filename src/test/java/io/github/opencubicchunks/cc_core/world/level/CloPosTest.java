@@ -57,13 +57,13 @@ public class CloPosTest {
         assertEquals(cube, CloPos.fromLong(cube.asLong()));
         assertEquals(column, CloPos.fromLong(column.asLong()));
 
-        assertEquals(cube.asLong(), CloPos.asLong(x, y, z));
-        assertEquals(column.asLong(), CloPos.asLong(x, z));
+        assertEquals(cube.asLong(), CloPos.cubeAsLong(x, y, z));
+        assertEquals(column.asLong(), CloPos.chunkAsLong(x, z));
     }
 
     private void packedUnpackedParity(int x, int y, int z) {
         var cube = CloPos.cube(x, y, z);
-        var cubeLong = CloPos.asLong(x, y, z);
+        var cubeLong = CloPos.cubeAsLong(x, y, z);
 
         assertEquals(cube.getX(), CloPos.extractX(cubeLong));
         assertEquals(cube.getY(), CloPos.extractY(cubeLong));
@@ -77,7 +77,7 @@ public class CloPosTest {
         assertEquals(neighbors1, neighbors2);
 
         var column = CloPos.chunk(x, z);
-        var columnLong = CloPos.asLong(x, z);
+        var columnLong = CloPos.chunkAsLong(x, z);
         assertEquals(column.getX(), CloPos.extractX(columnLong));
         assertThrows(IllegalArgumentException.class, () -> CloPos.extractY(columnLong));
         assertEquals(column.getZ(), CloPos.extractZ(columnLong));
@@ -91,7 +91,7 @@ public class CloPosTest {
     }
 
     private void chunkPosCubePosPackingEquivalence(int x, int y, int z) {
-        var cubeLong = CloPos.asLong(x, y, z);
+        var cubeLong = CloPos.cubeAsLong(x, y, z);
         var expectedCubeLong = CubePos.asLong(x, y, z);
 
         assertEquals(expectedCubeLong, cubeLong);
@@ -100,7 +100,7 @@ public class CloPosTest {
         assertEquals(CubePos.extractZ(cubeLong), CloPos.extractZ(cubeLong));
         assertEquals(CubePos.from(cubeLong), CloPos.fromLong(cubeLong).cubePos());
 
-        var chunkLong = CloPos.asLong(x, z);
+        var chunkLong = CloPos.chunkAsLong(x, z);
         var expectedChunkLong = MCChunkPos.asLong(x, z);
 
         assertEquals(expectedChunkLong, chunkLong);
@@ -137,18 +137,18 @@ public class CloPosTest {
 
     private void longGetSet(int x, int y, int z, int offsetX, int offsetY, int offsetZ) {
         // Calling methods with cube pos
-        var cube = CloPos.asLong(x, y, z);
+        var cube = CloPos.cubeAsLong(x, y, z);
         assertEquals(x + offsetX, CloPos.extractX(CloPos.setX(cube, x + offsetX)));
         assertEquals(y + offsetY, CloPos.extractY(CloPos.setY(cube, y + offsetY)));
         assertEquals(z + offsetZ, CloPos.extractZ(CloPos.setZ(cube, z + offsetZ)));
-        assertEquals(CloPos.asLong(x + offsetX, y + offsetY, z + offsetZ), CloPos.setZ(CloPos.setY(CloPos.setX(cube, x + offsetX), y + offsetY), z + offsetZ));
+        assertEquals(CloPos.cubeAsLong(x + offsetX, y + offsetY, z + offsetZ), CloPos.setZ(CloPos.setY(CloPos.setX(cube, x + offsetX), y + offsetY), z + offsetZ));
         // Calling methods with chunk pos
-        var chunk = CloPos.asLong(x, z);
+        var chunk = CloPos.chunkAsLong(x, z);
         assertEquals(x + offsetX, CloPos.extractX(CloPos.setX(chunk, x + offsetX)));
         assertThrows(IllegalArgumentException.class, () -> CloPos.setY(chunk, y + offsetY));
         assertThrows(IllegalArgumentException.class, () -> CloPos.extractY(chunk));
         assertEquals(z + offsetZ, CloPos.extractZ(CloPos.setZ(chunk, z + offsetZ)));
-        assertEquals(CloPos.asLong(x + offsetX, z + offsetZ), CloPos.setZ(CloPos.setX(chunk, x + offsetX), z + offsetZ));
+        assertEquals(CloPos.chunkAsLong(x + offsetX, z + offsetZ), CloPos.setZ(CloPos.setX(chunk, x + offsetX), z + offsetZ));
     }
 
     @Test public void testConstructionAndBasicMethods() {
