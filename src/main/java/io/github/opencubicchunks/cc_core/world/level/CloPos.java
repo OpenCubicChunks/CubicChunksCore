@@ -30,7 +30,7 @@ import io.github.opencubicchunks.cc_core.utils.Coords;
  */
 public class CloPos {
     /**
-     * long representing an invalid CloPos. This is the same value as {@link MCChunkPos#INVALID_CHUNK_POS}.
+     * long representing an invalid CloPos. This is the same value as {@link MCChunkPos#INVALID_CHUNK_POS} and {@link CubePos#INVALID_CUBE_POS}.
      */
     public static final long INVALID_CLO_POS = Long.MAX_VALUE;
 

@@ -31,6 +31,10 @@ import io.github.opencubicchunks.cc_core.utils.Coords;
  */
 @UsedFromASM
 public class CubePos extends MCVec3i {
+    /**
+     * long representing an invalid CubePos. This is the same value as {@link MCChunkPos#INVALID_CHUNK_POS} and {@link io.github.opencubicchunks.cc_core.world.level.CloPos#INVALID_CLO_POS}.
+     */
+    public static final long INVALID_CUBE_POS = Long.MAX_VALUE;
     private static final long TOP_TWO_BITS_MASK = (0b11L << 62);
 
     private CubePos(int x, int y, int z) {
