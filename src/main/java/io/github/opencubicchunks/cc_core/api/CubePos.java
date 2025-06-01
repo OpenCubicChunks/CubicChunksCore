@@ -241,6 +241,14 @@ public class CubePos extends MCVec3i {
             && getX() <= maxX && getY() <= maxY && getZ() <= maxZ;
     }
 
+    public int getChessboardDistance(CubePos cubePos) {
+        return this.getChessboardDistance(cubePos.getX(), cubePos.getY(), cubePos.getZ());
+    }
+
+    public int getChessboardDistance(int x, int y, int z) {
+        return Math.max(Math.max(Math.abs(this.getX() - x), Math.abs(this.getZ() - z)), Math.abs(this.getY() - y));
+    }
+
     public String toString() {
         return MoreObjects.toStringHelper(this).add("x", this.getX()).add("y", this.getY()).add("z", this.getZ()).toString();
     }
