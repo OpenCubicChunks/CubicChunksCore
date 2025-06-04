@@ -35,6 +35,8 @@ public class CubePos extends MCVec3i {
      * long representing an invalid CubePos. This is the same value as {@link MCChunkPos#INVALID_CHUNK_POS} and {@link io.github.opencubicchunks.cc_core.world.level.CloPos#INVALID_CLO_POS}.
      */
     public static final long INVALID_CUBE_POS = Long.MAX_VALUE;
+    public static final int MAX_COORDINATE_VALUE = Coords.blockToCube(33554431);
+    public static final CubePos ZERO = new CubePos(0, 0, 0);
     private static final long TOP_TWO_BITS_MASK = (0b11L << 62);
 
     private CubePos(int x, int y, int z) {
