@@ -116,3 +116,8 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
+
+tasks.withType(Checkstyle) {
+    // Use CubicChunksCore's checkstyle config, not CubicChunks' config.
+    configFile = project.file('config/checkstyle/checkstyle.xml')
+}
