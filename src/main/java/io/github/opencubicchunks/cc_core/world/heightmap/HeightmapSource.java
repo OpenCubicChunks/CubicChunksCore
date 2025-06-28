@@ -10,8 +10,6 @@ public interface HeightmapSource {
         throw new IllegalStateException("Should not be reached");
     }
 
-    void unloadSource(@Nonnull HeightmapStorage storage);
-
     int getHighest(int x, int z, byte heightmapType);
 
     int getSourceY();

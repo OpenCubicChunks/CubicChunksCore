@@ -40,7 +40,7 @@ public abstract class SurfaceTrackerNode {
     protected final int scaledY;
     protected final byte scale;
     /**
-     * Most significant bit (sign bit) is requires save flag
+     * Most significant bit (sign bit) is 'requires save' flag
      * Other bits are the heightmap type
      */
     protected byte heightmapTypeAndRequiresSave = 0;

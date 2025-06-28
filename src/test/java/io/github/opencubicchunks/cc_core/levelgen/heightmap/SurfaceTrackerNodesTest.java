@@ -555,7 +555,7 @@ public class SurfaceTrackerNodesTest {
             this.leaf = surfaceTrackerLeaf;
         }
 
-        @Override public void unloadSource(@Nonnull HeightmapStorage storage) {
+        public void unloadSource(@Nonnull HeightmapStorage storage) {
             if (this.leaf != null) {
                 this.leaf.sourceUnloaded(this.cubeX, this.cubeZ, storage);
                 this.leaf = null;
